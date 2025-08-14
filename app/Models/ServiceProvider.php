@@ -16,7 +16,7 @@ class ServiceProvider extends Model
     use HasUlids;
 
     public $incrementing = false;
-    protected $keyType = 'ulid';
+    protected $keyType = 'string';
 
     protected $guarded = [];
 

@@ -7,18 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 use App\Exceptions\DuplicateEmailException;
 use App\Exceptions\DuplicateEmployeeException;
+use Laravel\Sanctum\HasApiTokens;
 
 class ServiceProvider extends Model
 {
-    use HasUlids;
+    use HasUlids, HasApiTokens;
 
     public $incrementing = false;
     protected $keyType = 'string';
-
     protected $guarded = [];
+    protected $hidden = ['password_hash'];
 
     public function employees()
     {
@@ -36,6 +38,23 @@ class ServiceProvider extends Model
 
             throw $e;
         }
+    }
+
+    public static function login(array $data)
+    {
+        $user = self::where('email', $data['email'])->first();
+
+        if (!$user) {
+            throw new \App\Exceptions\UserNotFoundException("ServiceProvider with this email not found");
+        }
+
+        if (!Hash::check($data['password'], $user->password_hash)) {
+            throw new \App\Exceptions\InvalidCredentialsException("Invalid password");
+        }
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return ['user' => $user, 'token' => $token];
     }
 
     public function activateEmployee(Employee $employee): void

@@ -11,6 +11,7 @@ class EmployeeData extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $table = 'employees_data';
 
     protected $guarded = [];
     protected $hidden = ['password_hash'];

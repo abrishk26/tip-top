@@ -13,7 +13,7 @@ class EmployeeController extends Controller
     // Get all employees
     public function index()
     {
-        $employees = Employee::with(['data:id,employee_id,first_name,last_name,email,image_url'])
+        $employees = Employee::with(['data:id,employee_id'])
             ->select(['id', 'unique_id', 'is_active'])
             ->get()
             ->map(function ($employee) {
@@ -21,10 +21,7 @@ class EmployeeController extends Controller
                     'id' => $employee->id,
                     'unique_id' => $employee->unique_id,
                     'is_active' => $employee->is_active,
-                    'first_name' => optional($employee->data)->first_name,
-                    'last_name' => optional($employee->data)->last_name,
-                    'email' => optional($employee->data)->email,
-                    'image_url' => optional($employee->data)->image_url,
+                   
                 ];
             });
 

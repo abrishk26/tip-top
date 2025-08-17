@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDataController;
 use App\Http\Controllers\ServiceProviderController;
+use App\Http\Controllers\UserController;
 
 // Service provider routes
 Route::prefix('service-providers')->group(function () {
@@ -44,4 +45,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/employees-data/{id}/password', [EmployeeDataController::class, 'updatePassword']);
     Route::delete('/employees-data/{id}', [EmployeeDataController::class, 'destroy']);
     Route::get('/employees-data/employee/{employeeId}', [EmployeeDataController::class, 'getByEmployeeId']);
+});
+
+// Test route for debugging
+Route::get('test', function() {
+    return response()->json(['message' => 'API is working', 'time' => now()]);
+});
+
+// User authentication routes
+    Route::prefix('users')->group(function () {
+        Route::post('register', [UserController::class, 'register']);
+        Route::match(['GET', 'POST'], 'verify-email', [UserController::class, 'verifyEmail']);
+        Route::post('get-token', [UserController::class, 'getVerificationToken']); // Testing helper
+        Route::post('login', [UserController::class, 'login']);
+        Route::post('resend-verification', [UserController::class, 'resendVerification']);
+    
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('profile', [UserController::class, 'profile']);
+        Route::put('profile', [UserController::class, 'updateProfile']);
+        Route::put('password', [UserController::class, 'changePassword']);
+        Route::post('logout', [UserController::class, 'logout']);
+    });
 });

@@ -99,6 +99,18 @@ return [
 
     'key' => env('APP_KEY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL is used for generating frontend links in emails and other
+    | communications. Set this in your ".env" file.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:8000'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))

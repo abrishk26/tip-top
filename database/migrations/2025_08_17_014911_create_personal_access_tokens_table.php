@@ -12,14 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->morphs('tokenable');
+            $table->ulid();
+            $table->string('tokenable_type', 255);
+            $table->string('tokenable_id', 26); // ULID is 26 characters
             $table->text('name');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();
             $table->timestamp('expires_at')->nullable()->index();
             $table->timestamps();
+            
+            // Add proper indexes for ULIDs
+            $table->index(['tokenable_type', 'tokenable_id']);
         });
     }
 

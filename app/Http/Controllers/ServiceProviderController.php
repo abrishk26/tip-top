@@ -64,11 +64,43 @@ class ServiceProviderController extends Controller
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
-    
 
-    public function employees(ServiceProvider $serviceProvider)
+    public function profile(Request $request)
+    {
+        try {
+            $user = $request->user();
+            return response()->json([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'category_id' => $user->category_id,
+                'contact_phone' => $user->contact_phone,
+                'image_url' => $user->image_url,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json(['error' => 'Failed to retrieve profile'], 500);
+        }
+    }
+
+    public function getEmployees(ServiceProvider $serviceProvider)
     {
         return response()->json($serviceProvider->getEmployees(), 200);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            // Revoke the current user's token
+            $request->user()->currentAccessToken()->delete();
+            
+            return response()->json(['message' => 'Logged out successfully']);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json(['error' => 'Failed to logout'], 500);
+        }
     }
 
     // Get employee summary

@@ -56,28 +56,28 @@ class DatabaseSeeder extends Seeder
             'service_provider_id' => $serviceProvider->id,
         ]);
 
-        // Create employee data
-        EmployeeData::create([
-            'id' => Str::ulid(),
-            'employee_id' => $employee1->id,
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john.doe@company.com',
-            'password_hash' => bcrypt('password123'),
-            'image_url' => 'https://example.com/john.jpg',
-            'sub_account_id' => 'acc_001',
-        ]);
+        // // Create employee data
+        // EmployeeData::create([
+        //     'id' => Str::ulid(),
+        //     'employee_id' => $employee1->id,
+        //     'first_name' => 'John',
+        //     'last_name' => 'Doe',
+        //     'email' => 'john.doe@company.com',
+        //     'password_hash' => bcrypt('password123'),
+        //     'image_url' => 'https://example.com/john.jpg',
+        //     'sub_account_id' => 'acc_001',
+        // ]);
 
-        EmployeeData::create([
-            'id' => Str::ulid(),
-            'employee_id' => $employee2->id,
-            'first_name' => 'Jane',
-            'last_name' => 'Smith',
-            'email' => 'jane.smith@company.com',
-            'password_hash' => bcrypt('password123'),
-            'image_url' => 'https://example.com/jane.jpg',
-            'sub_account_id' => 'acc_002',
-        ]);
+        // EmployeeData::create([
+        //     'id' => Str::ulid(),
+        //     'employee_id' => $employee2->id,
+        //     'first_name' => 'Jane',
+        //     'last_name' => 'Smith',
+        //     'email' => 'jane.smith@company.com',
+        //     'password_hash' => bcrypt('password123'),
+        //     'image_url' => 'https://example.com/jane.jpg',
+        //     'sub_account_id' => 'acc_002',
+        // ]);
 
         $this->command->info('Sample data created successfully!');
         $this->command->info('Category ID: ' . $category->id);

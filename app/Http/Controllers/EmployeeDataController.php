@@ -19,7 +19,6 @@ class EmployeeDataController extends Controller
             'last_name',
             'email',
             'image_url',
-            'sub_account_id',
         ])
         ->get();
 
@@ -48,7 +47,6 @@ class EmployeeDataController extends Controller
             'email' => 'required|email|unique:employees_data,email',
             'password' => 'required|string|min:8|confirmed',
             'image_url' => 'sometimes|string',
-            'sub_account_id' => 'sometimes|string',
         ]);
 
         try {

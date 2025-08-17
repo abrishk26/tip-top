@@ -11,7 +11,7 @@ Route::prefix('service-providers')->group(function () {
     Route::post('register', [ServiceProviderController::class, 'register']);
     Route::post('login', [ServiceProviderController::class, 'login']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+    //Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [ServiceProviderController::class, 'profile']);
         Route::get('employees', [ServiceProviderController::class, 'getEmployees']);
         Route::post('employees/register', [ServiceProviderController::class, 'registerEmployees']);
@@ -19,7 +19,7 @@ Route::prefix('service-providers')->group(function () {
         Route::patch('employees/{id}/deactivate', [ServiceProviderController::class, 'deactivateEmployee']);
         Route::patch('employees/status', [ServiceProviderController::class, 'setEmployeesStatus']);
         Route::get('employee-summary', [ServiceProviderController::class, 'employeeSummary']);
-    });
+    //});
 });
 
 // Category routes
@@ -31,7 +31,7 @@ Route::get('/employees/{id}', [EmployeeController::class, 'show']);
 Route::put('/employees/{id}/profile', [EmployeeController::class, 'updateProfile']);
 Route::put('/employees/{id}/password', [EmployeeController::class, 'changePassword']);
 Route::post('/employees/{id}/complete-registration', [EmployeeController::class, 'completeRegistration']);
-
+// Route::post('/employees/register', [EmployeeController::class, 'completeRegistration']);
 // EmployeeData routes
 Route::get('/employees-data', [EmployeeDataController::class, 'index']);
 Route::get('/employees-data/{id}', [EmployeeDataController::class, 'show']);

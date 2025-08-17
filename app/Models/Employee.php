@@ -31,6 +31,12 @@ class Employee extends Model
         return $this->hasOne(EmployeeData::class, 'employee_id', 'id');
     }
 
+    // Relationship to SubAccount
+    public function subAccount()
+    {
+        return $this->hasOne(EmployeeData::class, 'employee_id', 'id');
+    }
+
     public function updateProfile(array $attributes)
     {
         if ($this->data) {
@@ -53,26 +59,14 @@ class Employee extends Model
         return $this->data;
     }
 
-    public function completeRegistration(array $personalData): void
+    public function create(array $personalData): void
     {
-        if (!$this->exists) {
-            throw new EmployeeNotFoundException("Employee ID does not exist.");
-        }
-
-        DB::beginTransaction();
-
-        try {
-            // Create or update personal data
+        DB::transaction(function () use ($personalData) {
             if ($this->data) {
                 $this->data->update($personalData);
             } else {
                 $this->data()->create($personalData);
             }
-
-            DB::commit();
-        } catch (QueryException $e) {
-            DB::rollBack();
-            throw new \Exception("Failed to complete registration: " . $e->getMessage(), 0, $e);
-        }
+        });
     }
 }

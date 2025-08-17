@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password_hash', 255);
             $table->string('contact_phone')->unique();
-            $table->text('image_url');
+            $table->text('image_url')->nullable();
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories');

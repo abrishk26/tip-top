@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'chapa' => [
+        'key' => env('CHAPA_KEY'),
+        'split_type' => 'percentage',
+        'split_value' => 0.2,
+        'url' => [
+            'subaccount' => 'https://api.chapa.co/v1/subaccount',
+        ]
+    ],
 ];

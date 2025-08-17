@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees_data', function (Blueprint $table) {
+        Schema::create('sub_accounts', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->text('sub_account');
             $table->ulid('employee_id');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('email')->unique();
-            $table->string('password_hash', 255);
-            $table->text('image_url')->nullable();
-            $table->boolean('is_activated')->default(false);
             $table->timestamps();
 
             $table->foreign('employee_id')->references('id')->on('employees');
@@ -31,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees_data');
+        Schema::dropIfExists('sub_accounts');
     }
 };

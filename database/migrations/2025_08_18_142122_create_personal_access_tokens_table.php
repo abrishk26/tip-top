@@ -1,20 +1,16 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
-            $table->ulid();
-            $table->string('tokenable_type', 255);
-            $table->string('tokenable_id', 26); // ULID is 26 characters
+            $table->id();
+            $table->string('tokenable_id', 26); // ULIDs are 26 chars
+            $table->string('tokenable_type');
             $table->text('name');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
@@ -22,14 +18,11 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable()->index();
             $table->timestamps();
             
-            // Add proper indexes for ULIDs
-            $table->index(['tokenable_type', 'tokenable_id']);
+            // Add composite index
+            $table->index(['tokenable_id', 'tokenable_type']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('personal_access_tokens');

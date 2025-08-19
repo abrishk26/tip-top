@@ -2,94 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Mail\VerificationEmail;
 use App\Models\Employee;
 use App\Models\SubAccount;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\EmployeeData;
+use App\Models\VerificationToken;
+use App\Exceptions\InvalidCredentialsException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeController extends Controller
 {
-    // Get all employees
-    public function index()
+    public function completeRegistration(Request $request)
     {
-        $employees = Employee::with(['data:id,employee_id'])
-            ->select(['id', 'unique_id', 'is_active', 'first_name', 'last_name'])
-            ->get()
-            ->map(function ($employee) {
-                return [
-                    'id' => $employee->id,
-                    'unique_id' => $employee->unique_id,
-                    'is_active' => $employee->is_active,
-                    'first_name' => $employee->first_name,
-                    'last_name' => $employee->last_name,
-                ];
-            });
-
-        return response()->json($employees);
-    }
-
-    // Get employee profile
-    public function show($id)
-    {
-        $employee = Employee::with('data')->find($id);
-
-        if (!$employee) {
-            return response()->json(['error' => 'Employee not found'], 404);
-        }
-
-        return response()->json($employee->getProfile());
-    }
-
-    // Update profile
-    public function updateProfile(Request $request, $id)
-    {
-        $request->validate([
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => [
-                'sometimes',
-                'email',
-                Rule::unique('employees_data', 'email')->ignore($id, 'employee_id')
-            ],
-            'image_url' => 'sometimes|string',
-            'sub_account_id' => 'sometimes|string',
-        ]);
-
-        $employee = Employee::with('data')->find($id);
-
-        if (!$employee) {
-            return response()->json(['error' => 'Employee not found'], 404);
-        }
-
-        $profile = $employee->updateProfile($request->all());
-
-        return response()->json($profile);
-    }
-
-    // Change password
-    public function changePassword(Request $request, $id)
-    {
-        $request->validate([
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $employee = Employee::with('data')->find($id);
-
-        if (!$employee || !$employee->data) {
-            return response()->json(['error' => 'Employee or profile not found'], 404);
-        }
-
-        $employee->changePassword($request->password);
-
-        return response()->json(['message' => 'Password updated successfully']);
-    }
-
-    public function completeRegistration(Request $request) {
+        // Validate request input
         $validated = $request->validate([
             'employee_code' => 'required|ulid',
             'first_name' => 'required|string|max:255',
@@ -99,34 +29,56 @@ class EmployeeController extends Controller
             'image_url' => 'sometimes|url',
         ]);
 
+        // check if the given email already exists
         $check = EmployeeData::where('email', $validated['email'])->first();
-
         if ($check) {
-            return response()->json(["error" => "the email has already been taken"], 422);
+            return response()->json(["error" => "the email has already been taken"], 409);
         }
 
+
+        // check if the employee is registered by the provider
+        $employee = Employee::where('id', $validated['employee_code'])->first();
+        if (!$employee) {
+            return response()->json(['error' => 'employee not found'], 404);
+        }
+
+        // store the employee data
+        $validated['password_hash'] = Hash::make($validated['password']);
+        unset($validated['password']);
+
+        $employee->create($validated);
+
+
+        // send verification email
+        $token = Str::random(64);
+        VerificationToken::create([
+            'token' => $token,
+            'tokenable_type' => 'employee',
+            'tokenable_id' => $employee->id,
+            'expires_at' => now()->addHours(24),
+        ]);
+        $verificationLink = config('app.frontend_url', 'http://localhost:8000') . 'api/employees/verify-token/?token=' . $token;
+        Mail::to($validated['email'])->queue(new VerificationEmail($verificationLink));
+
+
+        return response()->json(['message' => 'Registration completed successfully']);
+    }
+
+    public static function login(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:6|max:30',
+        ]);
+
         try {
-            $employee = Employee::findOrFail($validated['employee_code']);
-
-            $validated['password_hash'] = Hash::make($validated['password']);
-
-            unset($validated['password']);
-
-            $employee->create($validated);
-
-            //TODO: send email here
-
-            return response()->json(['message' => 'Registration completed successfully']);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => 'Employee not found.',
-            ], 404);
+            $result = Employee::login($validated);
+            return response()->json(['message' => 'login successful', 'token' => $result]);
+        } catch (InvalidCredentialsException $e) {
+            return response()->json(['error' => $e->getMessage()], 401);
         } catch (\Exception $e) {
             Log::error($e);
-            return response()->json([
-                'error' => 'Internal server error. Please try again later.'
-            ], 500);
+            return response()->json(['error' => 'Internal server error'], 500);
         }
     }
 
@@ -139,6 +91,12 @@ class EmployeeController extends Controller
             'bank_code' => 'required|integer',
             'account_number' => 'required|string'
         ]);
+
+        $employee = $request->user();
+
+        if ($employee->id != $validated['id']) {
+            return response()->json(["error" => "unautorized"], 401);
+        }
 
         $check = Employee::where('id', $validated['id'])->first();
 
@@ -199,7 +157,6 @@ class EmployeeController extends Controller
             return response()->json([
                 'error' => 'Could not process your request at the moment. Please try again later.',
             ], 500);
-
         } else {
             Log::error('Chapa unexpected response: ' . json_encode($response));
             return response()->json([
@@ -208,21 +165,63 @@ class EmployeeController extends Controller
         }
 
 
-            $subAccountID = $response['data']['subaccounts_id'] ?? null;
+        $subAccountID = $response['data']['subaccounts_id'] ?? null;
 
-            if (!$subaccountId) {
-                return response()->json([
-                    'error' => 'Unable to create subaccount. Please try again later.',
-                ], 500);
-            }
+        if (!$subaccountId) {
+            return response()->json([
+                'error' => 'Unable to create subaccount. Please try again later.',
+            ], 500);
+        }
 
-            $subAccount = new SubAccount;
-            $subAccount->sub_account = $subAccountID;
-            $subAccount->employee_id = $validated['id'];
+        $subAccount = new SubAccount;
+        $subAccount->sub_account = $subAccountID;
+        $subAccount->employee_id = $validated['id'];
 
-            $subAccount->save();
+        $subAccount->save();
 
-            return response()->json(['message' => 'account registered successfully']);
+        return response()->json(['message' => 'account registered successfully']);
+    }
 
+    // Get all employees
+    public function index()
+    {
+        $employees = Employee::with(['data:id,employee_id, first_name, last_name'])
+            ->select(['id', 'unique_id', 'is_active'])
+            ->get()
+            ->map(function ($employee) {
+                return [
+                    'id' => $employee->id,
+                    'unique_id' => $employee->unique_id,
+                    'is_active' => $employee->is_active,
+                    'first_name' => $employee->data?->first_name,
+                    'last_name' => $employee->data?->last_name,
+                ];
+            });
+
+        return response()->json($employees);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $token = $request->query('token');
+
+        $record = VerificationToken::where('token', $token)->first();
+
+        if (!$record) {
+            return response()->json(['error' => 'invalid token.'], 400);
+        }
+
+        if ($record->expires_at->isPast()) {
+            $record->delete();
+            return response()->json(['error' => 'token expired'], 400);
+        }
+
+        $employee = Employee::where('id', $record->tokenable_id)->first();
+        $employee->is_verified = true;
+        $employee->save();
+
+        $record->delete();
+
+        return response()->json(['message' => 'email verified successfully']);
     }
 }

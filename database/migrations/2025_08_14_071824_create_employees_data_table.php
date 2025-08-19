@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password_hash', 255);
             $table->text('image_url')->nullable();
-            $table->boolean('is_activated')->default(false);
+            
             $table->timestamps();
 
             $table->foreign('employee_id')->references('id')->on('employees');

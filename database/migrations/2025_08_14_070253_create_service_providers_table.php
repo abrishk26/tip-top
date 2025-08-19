@@ -15,10 +15,13 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->string('name', 200);
             $table->ulid('category_id');
+            $table->text('description')->nullable();
+            $table->string('tax_id')->nullable();
             $table->string('email')->unique();
             $table->string('password_hash', 255);
             $table->string('contact_phone')->unique();
             $table->text('image_url')->nullable();
+            $table->boolean('is_verified')->default(false);
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories');

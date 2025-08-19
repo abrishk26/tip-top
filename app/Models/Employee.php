@@ -37,6 +37,22 @@ class Employee extends Model
         return $this->hasOne(EmployeeData::class, 'employee_id', 'id');
     }
 
+    public static function login(array $data)
+    {
+        $user = Employee::data()->where('email', $data['email'])->first();
+
+        if (!$user) {
+            throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
+        }
+
+        if (!Hash::check($data['password'], $user->password_hash)) {
+            throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
+        }
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return $token;
+    }
     public function updateProfile(array $attributes)
     {
         if ($this->data) {

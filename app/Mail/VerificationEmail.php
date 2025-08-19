@@ -13,14 +13,12 @@ class VerificationEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
     public $verificationUrl;
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, string $verificationUrl)
+    public function __construct(string $verificationUrl)
     {
-        $this->user = $user;
         $this->verificationUrl = $verificationUrl;
     }
 
@@ -40,20 +38,10 @@ class VerificationEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.verification',
+            view: 'emails.verify',
             with: [
-                'user' => $this->user,
                 'verificationUrl' => $this->verificationUrl,
             ],
         );
-    }
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
     }
 }

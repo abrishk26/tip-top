@@ -22,9 +22,18 @@ class ServiceProvider extends Model
     protected $guarded = [];
     protected $hidden = ['password_hash'];
 
+    protected $casts = [
+        'id' => 'string', // ensures Eloquent always treats ULID as string
+    ];
+
+
     public function employees()
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function address() {
+        return $this->hasOne(Address::class, 'provider_id', 'id');
     }
 
     public static function register($data)
@@ -42,19 +51,19 @@ class ServiceProvider extends Model
 
     public static function login(array $data)
     {
-        $user = self::where('email', $data['email'])->first();
+        $user = ServiceProvider::where('email', $data['email'])->first();
 
         if (!$user) {
-            throw new \App\Exceptions\UserNotFoundException("ServiceProvider with this email not found");
+            throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
         }
 
         if (!Hash::check($data['password'], $user->password_hash)) {
-            throw new \App\Exceptions\InvalidCredentialsException("Invalid password");
+            throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return ['user' => $user, 'token' => $token];
+        return $token;
     }
 
     public function activateEmployee(Employee $employee): void

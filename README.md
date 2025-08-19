@@ -1,94 +1,51 @@
 # Tip Top
-# Setting Up The Project
+---
 
-This guide covers installing PHP, Composer, Laravel, MySQL, and configuring your `.env` file after cloning a project.
+## Setting Up The Project
+
+### 1. Prerequisites
+
+    1. Install PHP
+    2. Install Composer
 
 ---
 
-## 1. Install PHP
 
-1. **Check if PHP is installed:**
-
-```bash
-php -v
-```
-
-2. **Ubuntu / Debian:**
+### 2. Clone the Project
 
 ```bash
-sudo apt update
-sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-mysql unzip curl -y
+git clone git@github.com:abrishk26/tip-top.git
+cd tip-top
 ```
-
-3. **Check version:**
-
-```bash
-php -v
-```
-
-> Laravel 10 requires PHP 8.1 or higher.
-
 ---
 
-## 2. Install Composer
 
-Composer is a PHP dependency manager.
-
-1. **Download Composer installer:**
-
-```bash
-curl -sS https://getcomposer.org/installer -o composer-setup.php
-```
-
-2. **Install globally:**
-
-```bash
-sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-```
-
-3. **Check installation:**
-
-```bash
-composer -V
-```
-
----
-
-## 3. Clone the Laravel Project
-
-```bash
-git clone <repository-url> project-name
-cd project-name
-```
-
----
-
-## 4. Install Laravel Dependencies
+### 3. Install Dependencies
 
 ```bash
 composer install
 ```
-
 ---
 
-## 5. Set Up Environment File
+
+### 4. Set Up Environment File
 
 1. Copy `.env.example` to `.env`:
 
-```bash
-cp .env.example .env
-```
+    ```bash
+    cp .env.example .env
+    ```
 
 2. Open `.env` in your editor and set the database credentials:
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=your_database_name
-DB_USERNAME=your_db_username
-DB_PASSWORD=your_db_password
-```
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=your_database_name
+    DB_USERNAME=your_db_username
+    DB_PASSWORD=your_db_password
+    ```
 
 > Make sure the database exists before running migrations. You can create it with:
 
@@ -96,10 +53,10 @@ DB_PASSWORD=your_db_password
 mysql -u your_db_username -p
 CREATE DATABASE your_database_name;
 ```
-
 ---
 
-## 6. Run Migrations
+
+### 5. Run Migrations
 
 ```bash
 php artisan migrate
@@ -107,7 +64,7 @@ php artisan migrate
 
 ---
 
-## 7. Start the Development Server
+### 6. Start the Development Server
 
 ```bash
 php artisan serve
@@ -115,21 +72,21 @@ php artisan serve
 
 > Your Laravel project should now be running at `http://127.0.0.1:8000`.
 
-# Service Provider API Documentation
+---
 
+## Service Provider API Documentation
+---
 This document describes the available API endpoints for managing Service Providers, including request headers, body parameters, and possible responses.
 
 ---
-
-## Base URL
-
+#### Base URL
 ```
 http://your-domain.com/api
 ```
-
+> The following endpoints assumes you are using the above base url.
 ---
 
-## 1. Register Service Provider
+### 1. Register Service Provider
 
 **Endpoint:**
 
@@ -146,21 +103,28 @@ POST /service-providers/register
 
 **Body Parameters:**
 
-| Field         | Type     | Required | Description                       |
-|---------------|----------|----------|-----------------------------------|
-| name          | string   | Yes      | Service provider's name           |
-| email         | string   | Yes      | Unique email address              |
-| password      | string   | Yes      | Plain password (will be hashed)   |
-| contact_phone | string   | Yes      | Must start with +2519 or +2517    |
+| Field         | Type     | Required | Description                                                                                                   |
+|---------------|----------|----------|---------------------------------------------------------------------------------------------------------------|
+| name          | string   | Yes      | Service provider's name                                                                                       |
+| category_id   | ulid     | Yes      | Service provider's category                                                                                   |
+| email         | string   | Yes      | Unique email address                                                                                          |
+| description   | string   | No       | Service Provider Description, must not exceed 500 characters                                                  |
+| tax_id        | string   | No       | Service Provider Tax ID, must not exceed 150.                                                                 |
+| password      | string   | Yes      | Plain password (will be hashed)                                                                               |
+| contact_phone | string   | Yes      | Must start with +2519 or +2517                                                                                |
+| address       | object   | Yes      | Must contains fields - street_address, city, region - which are all string, required and max 150 characters   |
+| image_url     | url      | No       | URL to service provider's logo                                                                                |
 
 **Example Request:**
 
 ```json
 {
   "name": "My Service",
+  "category_id": "<ulid>",
   "email": "service@example.com",
   "password": "securepassword",
-  "contact_phone": "+251912345678"
+  "contact_phone": "+251912345678",
+  "image_url": "<logo_url>"
 }
 ```
 
@@ -168,12 +132,7 @@ POST /service-providers/register
 
 ```json
 {
-  "message": "Service provider registered successfully",
-  "data": {
-    "id": "01JXYZ1234567890",
-    "name": "My Service",
-    "email": "service@example.com"
-  }
+  "message": "registration completed successfully",
 }
 ```
 
@@ -182,11 +141,11 @@ POST /service-providers/register
 | Status | Example Response |
 |--------|------------------|
 | 422    | `{ "message": "Validation failed", "errors": { "email": ["The email field must be a valid email address."] } }` |
-| 409    | `{ "message": "Email already exists" }` |
+| 409    | `{ "error": "the email has already been taken" }` |
 
 ---
 
-## 2. Login Service Provider
+### 2. Login Service Provider
 
 **Endpoint:**
 
@@ -203,10 +162,10 @@ POST /service-providers/login
 
 **Body Parameters:**
 
-| Field    | Type   | Required | Description                   |
-|----------|--------|----------|-------------------------------|
+| Field    | Type   | Required | Description                       |
+|----------|--------|----------|-----------------------------------|
 | email    | string | Yes      | Registered service provider email |
-| password | string | Yes      | Plain password                 |
+| password | string | Yes      | Plain password                    |
 
 **Example Request:**
 
@@ -221,7 +180,7 @@ POST /service-providers/login
 
 ```json
 {
-  "message": "Login successful",
+  "message": "login successful",
   "token": "1|abcdefghijklmopqrstuvwxyz"
 }
 ```
@@ -230,12 +189,193 @@ POST /service-providers/login
 
 | Status | Example Response |
 |--------|------------------|
-| 401    | `{ "message": "Invalid credentials" }` |
-| 404    | `{ "message": "Service provider not found" }` |
+| 401    | `{ "error": "invalid credentials" }` |
+| 500    | `{ "error": "internal server error" }` |
 
 ---
 
-## 3. Get Employees (Authenticated)
+### 3. Verify Service Provider Email
+
+**Endpoint:**
+
+```
+POST /service-providers/verify-email/?token=<token>
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+
+**Success Response (200):**
+
+```json
+{
+  "message": "email verified successfully",
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "invalid token" }` |
+| 400    | `{ "error": "token expired" }` |
+
+---
+
+## Employee API Documentation
+---
+This document describes the available API endpoints for managing Employees, including request headers, body parameters, and possible responses.
+
+---
+#### Base URL
+```
+http://your-domain.com/api
+```
+> The following endpoints assumes you are using the above base url.
+---
+
+### 1. Register Employee
+
+**Endpoint:**
+
+```
+POST /employees/register
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Content-Type   | application/json   |
+| Accept         | application/json   |
+
+**Body Parameters:**
+
+| Field         | Type     | Required | Description                                                |
+|---------------|----------|----------|------------------------------------------------------------|
+| employee_code | ulid     | Yes      | unique code given by the service provider for the employee |
+| first_name    | string   | Yes      | Employee's first name                                      |
+| last_name     | string   | Yes      | Employee's last name                                       |
+| email         | string   | Yes      | Unique email address                                       |
+| password      | string   | Yes      | Plain password (will be hashed)                            |
+| image_url     | url      | No       | URL to employee's profile picture                             |
+
+**Example Request:**
+
+```json
+{
+  "fist_name": "<first_name>",
+  "last_name": "<first_name>",
+  "employee_code": "<ulid>",
+  "email": "service@example.com",
+  "password": "securepassword",
+  "image_url": "<logo_url>"
+}
+```
+
+**Success Response (201):**
+
+```json
+{
+  "message": "registration completed successfully",
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 422    | `{ "message": "Validation failed", "errors": { "email": ["The email field must be a valid email address."] } }` |
+| 409    | `{ "error": "the email has already been taken" }` |
+| 404    | `{ "error": "employee not found" }` |
+
+---
+
+### 2. Login Employee
+
+**Endpoint:**
+
+```
+POST /employees/login
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Content-Type   | application/json   |
+| Accept         | application/json   |
+
+**Body Parameters:**
+
+| Field    | Type   | Required | Description                       |
+|----------|--------|----------|-----------------------------------|
+| email    | string | Yes      | Registered employee email |
+| password | string | Yes      | Plain password                    |
+
+**Example Request:**
+
+```json
+{
+  "email": "employee@example.com",
+  "password": "securepassword"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "login successful",
+  "token": "1|abcdefghijklmopqrstuvwxyz"
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 401    | `{ "error": "invalid credentials" }` |
+| 500    | `{ "error": "internal server error" }` |
+
+---
+
+### 3. Verify Employee Email
+
+**Endpoint:**
+
+```
+POST /employees/verify-email/?token=<token>
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+
+**Success Response (200):**
+
+```json
+{
+  "message": "email verified successfully",
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "invalid token" }` |
+| 400    | `{ "error": "token expired" }` |
+
+---
+
+// TODO
+### 4. Get Employees (Authenticated)
 
 **Endpoint:**
 

@@ -11,36 +11,32 @@ use App\Http\Controllers\UserController;
 Route::prefix('service-providers')->group(function () {
     Route::post('register', [ServiceProviderController::class, 'register']);
     Route::post('login', [ServiceProviderController::class, 'login']);
+    Route::post('verify-email', [ServiceProviderController::class, 'verifyEmail']);
 
-    //Route::middleware('auth:sanctum')->group(function () {
-        Route::get('profile', [ServiceProviderController::class, 'profile']);
-        Route::post('logout', [ServiceProviderController::class, 'logout']);
-        Route::get('employees', [ServiceProviderController::class, 'getEmployees']);
-        Route::post('employees/register', [ServiceProviderController::class, 'registerEmployees']);
-        Route::patch('employees/{id}/activate', [ServiceProviderController::class, 'activateEmployee']);
-        Route::patch('employees/{id}/deactivate', [ServiceProviderController::class, 'deactivateEmployee']);
-        Route::patch('employees/status', [ServiceProviderController::class, 'setEmployeesStatus']);
-        Route::get('employee-summary', [ServiceProviderController::class, 'employeeSummary']);
-    //});
+
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::get('profile', [ServiceProviderController::class, 'profile']);
+    Route::post('logout', [ServiceProviderController::class, 'logout']);
+    Route::get('employees', [ServiceProviderController::class, 'getEmployees']);
+    Route::post('employees/register', [ServiceProviderController::class, 'registerEmployees']);
+    Route::patch('employees/{id}/activate', [ServiceProviderController::class, 'activateEmployee']);
+    Route::patch('employees/{id}/deactivate', [ServiceProviderController::class, 'deactivateEmployee']);
+    Route::patch('employees/status', [ServiceProviderController::class, 'setEmployeesStatus']);
+    Route::get('employee-summary', [ServiceProviderController::class, 'employeeSummary']);
+    });
 });
 
 // Category routes
 Route::get('/categories', [CategoryController::class, 'index']);
 
-// Employee routes
-Route::get('/employees', [EmployeeController::class, 'index']);
-Route::get('/employees/{id}', [EmployeeController::class, 'show']);
-Route::put('/employees/{id}/profile', [EmployeeController::class, 'updateProfile']);
-Route::put('/employees/{id}/password', [EmployeeController::class, 'changePassword']);
-Route::post('/employees/{id}/complete-registration', [EmployeeController::class, 'completeRegistration']);
-// Route::post('/employees/register', [EmployeeController::class, 'completeRegistration']);
-// Employee routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/employees', [EmployeeController::class, 'index']);
-    Route::get('/employees/{id}', [EmployeeController::class, 'show']);
-    Route::put('/employees/{id}/profile', [EmployeeController::class, 'updateProfile']);
-    Route::put('/employees/{id}/password', [EmployeeController::class, 'changePassword']);
-    Route::post('/employees/{id}/complete-registration', [EmployeeController::class, 'completeRegistration']);
+Route::prefix('employees')->group(function () {
+    Route::post('register', [EmployeeController::class, 'complete-registration']);
+    Route::post('login', [EmployeeController::class, 'login']);
+    Route::post('verify-email', [EmployeeController::class, 'verifyEmail']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/employees/set-bank-info', [EmployeeController::class, 'completeBankInfo']);
+    });
 });
 
 // EmployeeData routes
@@ -55,17 +51,17 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Test route for debugging
-Route::get('test', function() {
+Route::get('test', function () {
     return response()->json(['message' => 'API is working', 'time' => now()]);
 });
 
 // User authentication routes
-    Route::prefix('users')->group(function () {
-        Route::post('register', [UserController::class, 'register']);
-        Route::match(['GET', 'POST'], 'verify-email', [UserController::class, 'verifyEmail']);
-        Route::post('get-token', [UserController::class, 'getVerificationToken']); // Testing helper
-        Route::post('login', [UserController::class, 'login']);
-        Route::post('resend-verification', [UserController::class, 'resendVerification']);
+Route::prefix('users')->group(function () {
+    Route::post('register', [UserController::class, 'register']);
+    Route::match(['GET', 'POST'], 'verify-email', [UserController::class, 'verifyEmail']);
+    Route::post('get-token', [UserController::class, 'getVerificationToken']); // Testing helper
+    Route::post('login', [UserController::class, 'login']);
+    Route::post('resend-verification', [UserController::class, 'resendVerification']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [UserController::class, 'profile']);

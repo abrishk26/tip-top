@@ -41,6 +41,7 @@ return [
         'split_value' => 0.2,
         'url' => [
             'subaccount' => 'https://api.chapa.co/v1/subaccount',
+            'transaction' => 'https://api.chapa.co/v1/transaction/initialize',
         ]
     ],
 ];

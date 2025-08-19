@@ -6,6 +6,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDataController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TipController;
 
 // Service provider routes
 Route::prefix('service-providers')->group(function () {
@@ -29,13 +30,14 @@ Route::prefix('service-providers')->group(function () {
 // Category routes
 Route::get('/categories', [CategoryController::class, 'index']);
 
+Route::get('/tip/{id}', [TipController::class, 'processTip']);
 Route::prefix('employees')->group(function () {
-    Route::post('register', [EmployeeController::class, 'complete-registration']);
+    Route::post('register', [EmployeeController::class, 'completeRegistration']);
     Route::post('login', [EmployeeController::class, 'login']);
     Route::post('verify-email', [EmployeeController::class, 'verifyEmail']);
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/employees/set-bank-info', [EmployeeController::class, 'completeBankInfo']);
+        Route::post('/set-bank-info', [EmployeeController::class, 'completeBankInfo']);
     });
 });
 

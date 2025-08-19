@@ -4,15 +4,16 @@ namespace App\Models;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Exceptions\EmployeeNotFoundException;
+use Laravel\Sanctum\HasApiTokens;
 
 class Employee extends Model
 {
-    use HasUlids;
+    use HasUlids, HasApiTokens;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -37,19 +38,23 @@ class Employee extends Model
         return $this->hasOne(EmployeeData::class, 'employee_id', 'id');
     }
 
-    public static function login(array $data)
+    public function login(array $data)
     {
-        $user = Employee::data()->where('email', $data['email'])->first();
+        $employee_data = EmployeeData::where('email', $data['email'])->first();
 
-        if (!$user) {
+        if (!$employee_data) {
+            Log::error("user does not exist");
             throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
         }
 
-        if (!Hash::check($data['password'], $user->password_hash)) {
+
+        if (!Hash::check($data['password'], $employee_data->password_hash)) {
+            Log::error("invalid password");
             throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
         }
+        $employee = $employee_data->employee;
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        $token = $employee->createToken('api-token')->plainTextToken;
 
         return $token;
     }

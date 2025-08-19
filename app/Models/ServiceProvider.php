@@ -121,6 +121,7 @@ class ServiceProvider extends Model
                 $results[] = $this->employees()->create([
                     'id' => Str::ulid(),
                     'unique_id' => Str::ulid()->toString(),
+                    'service_provider_id' => $this->id,
                 ]);
             }
 

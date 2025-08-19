@@ -47,13 +47,11 @@ class ServiceProviderController extends Controller
         $validated['password_hash'] = bcrypt($validated['password']);
         unset($validated['password']);
 
-        $street = $validated['address.street_address'];
-        $city = $validated['address.city'];
-        $region = $validated['address.region'];
+        $street = $validated['address']['street_address'];
+        $city = $validated['address']['city'];
+        $region = $validated['address']['region'];
 
-        unset($validated['address.street_address']);
-        unset($validated['address.city']);
-        unset($validated['address.region']);
+        unset($validated['address']);
 
         $provider = ServiceProvider::register($validated);
 
@@ -132,7 +130,7 @@ class ServiceProviderController extends Controller
                 'category_id' => $provider->category_id,
                 'description' => $provider->description,
                 'tax_id' => $provider->tax_id,
-                'address' => $prodier->address,
+                'address' => $provider->address,
                 'contact_phone' => $provider->contact_phone,
                 'image_url' => $provider->image_url,
                 'created_at' => $provider->created_at,
@@ -202,14 +200,16 @@ class ServiceProviderController extends Controller
     }
 
     // Register multiple employees
-    public function registerEmployees(Request $request, ServiceProvider $serviceProvider)
+    public function registerEmployees(Request $request)
     {
         $validated = $request->validate([
             'count' => 'required|integer|min:1|max:100'
         ]);
 
+        $provider = $request->user();
+
         try {
-            $employees = $serviceProvider->registerEmployees($validated['count']);
+            $employees = $provider->registerEmployees($validated['count']);
             return response()->json(['message' => 'Employees registered', 'employees' => $employees], 201);
         } catch (DuplicateEmployeeException $e) {
             return response()->json(['error' => 'Duplicate employee IDs detected'], 409);

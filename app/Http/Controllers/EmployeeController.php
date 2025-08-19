@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     {
         // Validate request input
         $validated = $request->validate([
-            'employee_code' => 'required|ulid',
+            'employee_id' => 'required|ulid',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees_data,email',
@@ -37,7 +37,7 @@ class EmployeeController extends Controller
 
 
         // check if the employee is registered by the provider
-        $employee = Employee::where('id', $validated['employee_code'])->first();
+        $employee = Employee::where('id', $validated['employee_id'])->first();
         if (!$employee) {
             return response()->json(['error' => 'employee not found'], 404);
         }
@@ -64,7 +64,7 @@ class EmployeeController extends Controller
         return response()->json(['message' => 'Registration completed successfully']);
     }
 
-    public static function login(Request $request)
+    public function login(Request $request, Employee $employee)
     {
         $validated = $request->validate([
             'email' => 'required|email',
@@ -72,7 +72,7 @@ class EmployeeController extends Controller
         ]);
 
         try {
-            $result = Employee::login($validated);
+            $result = $employee->login($validated);
             return response()->json(['message' => 'login successful', 'token' => $result]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
@@ -85,7 +85,6 @@ class EmployeeController extends Controller
     public function completeBankInfo(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|ulid',
             'business_name' => 'required|string|max:255',
             'account_name' => 'required|string|max:255',
             'bank_code' => 'required|integer',
@@ -93,16 +92,6 @@ class EmployeeController extends Controller
         ]);
 
         $employee = $request->user();
-
-        if ($employee->id != $validated['id']) {
-            return response()->json(["error" => "unautorized"], 401);
-        }
-
-        $check = Employee::where('id', $validated['id'])->first();
-
-        if (!$check) {
-            return response()->json(["error" => "invalid credential"], 422);
-        }
 
         $chapaConfig = config('services.chapa');
 
@@ -157,7 +146,7 @@ class EmployeeController extends Controller
             return response()->json([
                 'error' => 'Could not process your request at the moment. Please try again later.',
             ], 500);
-        } else {
+        } else if ($chapa_response->serverError()) {
             Log::error('Chapa unexpected response: ' . json_encode($response));
             return response()->json([
                 'error' => 'Something went wrong with user account processing.',
@@ -165,9 +154,9 @@ class EmployeeController extends Controller
         }
 
 
-        $subAccountID = $response['data']['subaccounts_id'] ?? null;
+        $subAccountID = $response['data']['subaccount_id'] ?? null;
 
-        if (!$subaccountId) {
+        if (!$subAccountID) {
             return response()->json([
                 'error' => 'Unable to create subaccount. Please try again later.',
             ], 500);
@@ -175,7 +164,7 @@ class EmployeeController extends Controller
 
         $subAccount = new SubAccount;
         $subAccount->sub_account = $subAccountID;
-        $subAccount->employee_id = $validated['id'];
+        $subAccount->employee_id = $employee->id;
 
         $subAccount->save();
 

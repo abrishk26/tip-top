@@ -8,6 +8,8 @@ use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TipController;
 
+Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
+
 // Service provider routes
 Route::prefix('service-providers')->group(function () {
     Route::post('register', [ServiceProviderController::class, 'register']);

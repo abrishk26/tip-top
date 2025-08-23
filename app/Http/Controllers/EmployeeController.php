@@ -57,7 +57,7 @@ class EmployeeController extends Controller
             'tokenable_id' => $employee->id,
             'expires_at' => now()->addHours(24),
         ]);
-        $verificationLink = config('app.frontend_url', 'http://localhost:8000') . 'api/employees/verify-token/?token=' . $token;
+        $verificationLink = config('app.frontend_url', 'http://localhost:8000') . '/api/employees/verify-token/?token=' . $token;
         Mail::to($validated['email'])->queue(new VerificationEmail($verificationLink));
 
 

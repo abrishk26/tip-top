@@ -38,7 +38,7 @@ return [
     'chapa' => [
         'key' => env('CHAPA_KEY'),
         'split_type' => 'percentage',
-        'split_value' => 0.2,
+        'split_value' => 0.02,
         'url' => [
             'subaccount' => 'https://api.chapa.co/v1/subaccount',
             'transaction' => 'https://api.chapa.co/v1/transaction/initialize',

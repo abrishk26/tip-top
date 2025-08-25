@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $table) {
+        Schema::create('addresses', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->boolean('is_active')->default(false);
-            $table->ulid('unique_id');
-            $table->ulid('service_provider_id');
-            $table->boolean('is_verified')->default(false);
+            $table->ulid('provider_id');
+            $table->string('street_address', 150);
+            $table->string('city', 150);
+            $table->string('region', 150);
             $table->timestamps();
 
-            $table->foreign('service_provider_id')->references('id')->on('service_providers');
+            $table->foreign('provider_id')->references('id')->on('service_providers');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees');
+        Schema::dropIfExists('addresses');
     }
 };

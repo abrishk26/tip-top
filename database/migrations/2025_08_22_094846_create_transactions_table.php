@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $table) {
+        Schema::create('transactions', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->boolean('is_active')->default(false);
-            $table->ulid('unique_id');
-            $table->ulid('service_provider_id');
-            $table->boolean('is_verified')->default(false);
+            $table->string('tx_ref', 200);
+            $table->ulid('tip_id');
             $table->timestamps();
 
-            $table->foreign('service_provider_id')->references('id')->on('service_providers');
+            $table->foreign('tip_id')->references('id')->on('tips');
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees');
+        Schema::dropIfExists('transaction');
     }
 };

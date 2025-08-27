@@ -8,6 +8,7 @@ use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TipController;
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\ServiceProviderAdminController;
 
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
 
@@ -83,5 +84,16 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
         Route::get('profile', [AdminAuthController::class, 'profile']);
         Route::post('logout', [AdminAuthController::class, 'logout']);
+
+        // Admin -> Service Providers management
+        Route::prefix('service-providers')->group(function () {
+            Route::get('/', [ServiceProviderAdminController::class, 'index']);
+            Route::get('{id}', [ServiceProviderAdminController::class, 'show']);
+            Route::post('{id}/accept', [ServiceProviderAdminController::class, 'accept']);
+            Route::post('{id}/reject', [ServiceProviderAdminController::class, 'reject']);
+            Route::post('{id}/suspend', [ServiceProviderAdminController::class, 'suspend']);
+            Route::post('{id}/unsuspend', [ServiceProviderAdminController::class, 'unsuspend']);
+            Route::get('{id}/employees', [ServiceProviderAdminController::class, 'employees']);
+        });
     });
 });

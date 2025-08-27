@@ -206,3 +206,106 @@ json
     }
   ]
 }
+
+### Employee Oversight (AdminEmployeeController)
+
+Base: /api/admin
+
+Headers (protected routes):
+- Authorization: Bearer {token}
+- Accept: application/json
+
+#### GET /admin/employees
+
+Query params (optional):
+- q: search by name/email/unique_id
+- provider_id: ULID of service provider
+- is_active: true | false
+- is_verified: true | false
+- is_suspended: true | false
+- per_page: integer (default 15)
+
+Example:
+GET /admin/employees?q=dawit&provider_id=01K3NRCEG37NXFY816Z858XF8W&is_active=false&per_page=20
+
+200 Response:
+json
+{
+  "current_page": 1,
+  "data": [
+    {
+      "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF",
+      "unique_id": "01K...",
+      "service_provider_id": "01K3NRCEG37NXFY816Z858XF8W",
+      "is_active": false,
+      "is_verified": false,
+      "is_suspended": false
+    }
+  ],
+  "per_page": 20,
+  "total": 1
+}
+
+#### GET /admin/employees/{id}
+
+Example:
+GET /admin/employees/01K3NRG8P0SWEHW2MA2F3MG8ZF
+
+200 Response:
+json
+{
+  "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF",
+  "unique_id": "01K...",
+  "service_provider_id": "01K3NRCEG37NXFY816Z858XF8W",
+  "is_active": false,
+  "is_verified": false,
+  "is_suspended": false
+}
+
+#### POST /admin/employees/{id}/activate
+
+Body: none
+
+200 Response:
+json
+{
+  "message": "Employee activated",
+  "employee": { "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF", "is_active": true }
+}
+
+#### POST /admin/employees/{id}/deactivate
+
+Body: none
+
+200 Response:
+json
+{
+  "message": "Employee deactivated",
+  "employee": { "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF", "is_active": false }
+}
+
+#### POST /admin/employees/{id}/suspend
+
+Body:
+json
+{
+  "reason": "Policy violation"
+}
+
+200 Response:
+json
+{
+  "message": "Employee suspended",
+  "employee": { "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF", "is_suspended": true, "suspended_at": "2025-08-27T14:05:00Z", "suspension_reason": "Policy violation" }
+}
+
+#### POST /admin/employees/{id}/unsuspend
+
+Body: none
+
+200 Response:
+json
+{
+  "message": "Employee unsuspended",
+  "employee": { "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF", "is_suspended": false, "suspended_at": null, "suspension_reason": null }
+}

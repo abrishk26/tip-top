@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\TipController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\ServiceProviderAdminController;
+use App\Http\Controllers\Admin\AdminEmployeeController;
 
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
 
@@ -94,6 +95,16 @@ Route::prefix('admin')->group(function () {
             Route::post('{id}/suspend', [ServiceProviderAdminController::class, 'suspend']);
             Route::post('{id}/unsuspend', [ServiceProviderAdminController::class, 'unsuspend']);
             Route::get('{id}/employees', [ServiceProviderAdminController::class, 'employees']);
+        });
+
+        // Admin -> Employees management
+        Route::prefix('employees')->group(function () {
+            Route::get('/', [AdminEmployeeController::class, 'index']);
+            Route::get('{id}', [AdminEmployeeController::class, 'show']);
+            Route::post('{id}/activate', [AdminEmployeeController::class, 'activate']);
+            Route::post('{id}/deactivate', [AdminEmployeeController::class, 'deactivate']);
+            Route::post('{id}/suspend', [AdminEmployeeController::class, 'suspend']);
+            Route::post('{id}/unsuspend', [AdminEmployeeController::class, 'unsuspend']);
         });
     });
 });

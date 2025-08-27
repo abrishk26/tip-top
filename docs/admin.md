@@ -6,6 +6,79 @@ Prefix: /api/admin
 Content-Type: application/json
 Protected routes require:
 Authorization: Bearer {token}
+
+---
+
+### Reporting & Analytics
+
+Base: /api/admin/reports
+
+Query date range for all endpoints (optional):
+- start_date: YYYY-MM-DD
+- end_date: YYYY-MM-DD
+
+#### GET /admin/reports/overview
+KPIs returned:
+- total_gross_tips
+- platform_revenue
+- chapa_fees
+- net_to_employees
+- active_providers
+- active_employees
+
+Example:
+GET /admin/reports/overview?start_date=2025-08-01&end_date=2025-08-27
+
+200 Response:
+json
+{
+  "range": {"start": "2025-08-01 00:00:00", "end": "2025-08-27 23:59:59"},
+  "total_gross_tips": 12345.67,
+  "platform_revenue": 456.78,
+  "chapa_fees": 123.45,
+  "net_to_employees": 11765.44,
+  "active_providers": 12,
+  "active_employees": 98
+}
+
+#### GET /admin/reports/tips
+Filters:
+- provider_id
+- employee_id
+- status (e.g., pending, paid, failed)
+- start_date, end_date
+- per_page (default 15)
+
+Example:
+GET /admin/reports/tips?provider_id=01K..&status=paid&start_date=2025-08-01&end_date=2025-08-27&per_page=20
+
+200 Response: Laravel pagination JSON of `tips` ordered by created_at desc
+
+#### GET /admin/reports/payments
+Filters:
+- provider_id (via underlying tip.service_provider_id)
+- employee_id
+- start_date, end_date
+- per_page (default 15)
+
+Example:
+GET /admin/reports/payments?employee_id=01K..&start_date=2025-08-01&end_date=2025-08-27
+
+200 Response: Laravel pagination JSON of `payments` ordered by created_at desc
+
+#### GET /admin/reports/top-employees
+Query:
+- start_date, end_date (optional)
+- limit (default 10)
+
+Returns: items = [{ employee_id, total_amount, payments_count }]
+
+#### GET /admin/reports/top-providers
+Query:
+- start_date, end_date (optional)
+- limit (default 10)
+
+Returns: items = [{ provider_id, total_amount, payments_count }]
 Accept: application/json
 
 ### Endpoints
@@ -97,6 +170,7 @@ Base: /api/admin
 Headers (protected routes):
 - Authorization: Bearer {token}
 - Accept: application/json
+
 
 #### GET /admin/service-providers
 

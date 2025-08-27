@@ -7,6 +7,7 @@ use App\Http\Controllers\EmployeeDataController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TipController;
+use App\Http\Controllers\Admin\AdminAuthController;
 
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
 
@@ -72,5 +73,15 @@ Route::prefix('users')->group(function () {
         Route::put('profile', [UserController::class, 'updateProfile']);
         Route::put('password', [UserController::class, 'changePassword']);
         Route::post('logout', [UserController::class, 'logout']);
+    });
+});
+
+// Admin auth routes
+Route::prefix('admin')->group(function () {
+    Route::post('login', [AdminAuthController::class, 'login']);
+
+    Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
+        Route::get('profile', [AdminAuthController::class, 'profile']);
+        Route::post('logout', [AdminAuthController::class, 'logout']);
     });
 });

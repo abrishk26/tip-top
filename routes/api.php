@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\ServiceProviderAdminController;
 use App\Http\Controllers\Admin\AdminEmployeeController;
 use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\AdminConfigController;
 
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
 
@@ -113,6 +114,14 @@ Route::prefix('admin')->group(function () {
             Route::get('overview', [AdminReportController::class, 'overview']);
             Route::get('tips', [AdminReportController::class, 'tips']);
             Route::get('payments', [AdminReportController::class, 'payments']);
+        });
+
+        // Admin -> Categories config
+        Route::prefix('categories')->group(function () {
+            Route::get('/', [AdminConfigController::class, 'listCategories']);
+            Route::post('/', [AdminConfigController::class, 'createCategory']);
+            Route::put('{id}', [AdminConfigController::class, 'updateCategory']);
+            Route::delete('{id}', [AdminConfigController::class, 'deleteCategory']);
         });
     });
 });

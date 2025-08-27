@@ -1,7 +1,4 @@
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+<?php use Illuminate\Database\Migrations\Migration; use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,6 +19,8 @@ return new class extends Migration
             $table->string('contact_phone')->unique();
             $table->text('image_url')->nullable();
             $table->boolean('is_verified')->default(false);
+            $table->text('license');
+            $table->string('registration_status')->default('pending');
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories');

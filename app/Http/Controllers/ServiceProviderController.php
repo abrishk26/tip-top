@@ -13,6 +13,7 @@ use App\Models\ServiceProvider;
 use App\Models\VerificationToken;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
@@ -20,7 +21,9 @@ class ServiceProviderController extends Controller
 {
     public function register(Request $request)
     {
-        $validated = $request->validate([
+        // extract the provider data from the form-data and validate
+        $data = json_decode($request->input('provider_data'), true);
+        $validated = validator($data, [
             'name'          => 'required|string|min:2|max:200',
             'category_id'   => 'required|ulid',
             'email'         => 'required|email',
@@ -36,14 +39,16 @@ class ServiceProviderController extends Controller
             'address.city' => 'required|string|max:150',
             'address.region' => 'required|string|max:150',
             'image_url'     => 'sometimes|url'
-        ]);
+        ])->validate();
 
+        // check if provider with the given email already exists
         $check = ServiceProvider::where('email', $validated['email'])->first();
 
         if ($check) {
             return response()->json(["error" => "the email has already been taken"], 409);
         }
 
+        // restructure the data for db insertion
         $validated['password_hash'] = bcrypt($validated['password']);
         unset($validated['password']);
 
@@ -51,17 +56,27 @@ class ServiceProviderController extends Controller
         $city = $validated['address']['city'];
         $region = $validated['address']['region'];
 
+
         unset($validated['address']);
 
-        $provider = ServiceProvider::register($validated);
+        // check if there exist license file
+        if ($request->hasFile('license')) {
+            $path = Storage::disk('public')->put('licenses', $request->file('license'), 'public');
+            $url = Storage::disk('public')->url($path);
 
-        $provider->address()->create([
-            'street_address' => $street,
-            'city' => $city,
-            'region' => $region
-        ]);
+            //store the provider in the database
+            $validated['license'] = $url;
+            $provider = ServiceProvider::register($validated);
+            $provider->address()->create([
+                'street_address' => $street,
+                'city' => $city,
+                'region' => $region,
+            ]);
+        } else {
+            return response()->json(["error" => "license file missing"], 400);
+        }
 
-
+        // generate verification token
         $token = Str::random(64);
         VerificationToken::create([
             'token' => $token,
@@ -70,7 +85,8 @@ class ServiceProviderController extends Controller
             'expires_at' => now()->addHours(24),
         ]);
 
-        $verificationLink = config('app.frontend_url', 'http://localhost:8000') . '/api/service-provider/verify-token/?token=' . $token;
+        // send email for the provider in the background
+        $verificationLink = config('app.frontend_url', 'http://localhost:8080') . '/api/service-provider/verify-token/?token=' . $token;
 
         Mail::to($validated['email'])->queue(new VerificationEmail($verificationLink));
 

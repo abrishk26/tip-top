@@ -66,20 +66,6 @@ GET /admin/reports/payments?employee_id=01K..&start_date=2025-08-01&end_date=202
 
 200 Response: Laravel pagination JSON of `payments` ordered by created_at desc
 
-#### GET /admin/reports/top-employees
-Query:
-- start_date, end_date (optional)
-- limit (default 10)
-
-Returns: items = [{ employee_id, total_amount, payments_count }]
-
-#### GET /admin/reports/top-providers
-Query:
-- start_date, end_date (optional)
-- limit (default 10)
-
-Returns: items = [{ provider_id, total_amount, payments_count }]
-Accept: application/json
 
 ### Endpoints
 

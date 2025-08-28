@@ -52,6 +52,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/employees-data/{id}/password', [EmployeeDataController::class, 'updatePassword']);
     Route::delete('/employees-data/{id}', [EmployeeDataController::class, 'destroy']);
     Route::get('/employees-data/employee/{employeeId}', [EmployeeDataController::class, 'getByEmployeeId']);
+     // Profile Management Endpoints
+     Route::get('/profile', [EmployeeDataController::class, 'getProfile']);
+     Route::put('/profile', [EmployeeDataController::class, 'updateProfile']);
+     Route::put('/change-password', [EmployeeDataController::class, 'changePassword']);
+     Route::delete('/account', [EmployeeDataController::class, 'deactivateAccount']);
 });
 
 // Test route for debugging

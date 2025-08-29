@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $table) {
+        Schema::create('admins', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->boolean('is_active')->default(false);
-            $table->ulid('tip_code');
-            $table->ulid('service_provider_id');
-            $table->boolean('is_verified')->default(false);
+            $table->string('name', 200);
+            $table->string('email')->unique();
+            $table->string('password_hash', 255)->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
-
-            $table->foreign('service_provider_id')->references('id')->on('service_providers');
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees');
+        Schema::dropIfExists('admins');
     }
 };

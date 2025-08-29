@@ -16,16 +16,20 @@ use App\Models\Employee;
 
 class TipController extends Controller
 {
-    public function processTip(Request $request, $id)
+    public function processTip(Request $request, $tipCode)
     {
         $amount = $request->query('amount');
         if (!$amount) {
-            return response()->json(['error' => 'include the tip amount']);
+            return response()->json(['error' => 'tip amount missing'], 409);
         }
 
-        $employee = Employee::where('id', $id)->first();
+        $employee = Employee::where('tip_code', $tipCode)->first();
 
-        $sub_account = SubAccount::where('employee_id', $id)->first();
+        if (!$employee) {
+            return response()->json(['error' => 'employee not found'], 409);
+        }
+
+        $sub_account = SubAccount::where('employee_id', $employee->id)->first();
         $tx_ref = Str::random(10);
         $chapaConfig = config('services.chapa');
         try {
@@ -43,7 +47,7 @@ class TipController extends Controller
             ]);
 
             $tip = Tip::create([
-                'employee_id' => $id,
+                'employee_id' => $employee->id,
                 'service_provider_id' => $employee->serviceProvider->id,
                 'amount' => $amount,
             ]);

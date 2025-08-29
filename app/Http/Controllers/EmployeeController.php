@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     {
         // Validate request input
         $validated = $request->validate([
-            'employee_id' => 'required|ulid',
+            'employee_code' => 'required|ulid',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees_data,email',
@@ -37,7 +37,7 @@ class EmployeeController extends Controller
 
 
         // check if the employee is registered by the provider
-        $employee = Employee::where('id', $validated['employee_id'])->first();
+        $employee = Employee::where('id', $validated['employee_code'])->first();
         if (!$employee) {
             return response()->json(['error' => 'employee not found'], 404);
         }
@@ -175,12 +175,11 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = Employee::with(['data:id,employee_id, first_name, last_name'])
-            ->select(['id', 'unique_id', 'is_active'])
+            ->select(['id', 'is_active'])
             ->get()
             ->map(function ($employee) {
                 return [
                     'id' => $employee->id,
-                    'unique_id' => $employee->unique_id,
                     'is_active' => $employee->is_active,
                     'first_name' => $employee->data?->first_name,
                     'last_name' => $employee->data?->last_name,

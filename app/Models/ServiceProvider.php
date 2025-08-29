@@ -141,7 +141,7 @@ class ServiceProvider extends Model
             for ($i = 0; $i < $count; $i++) {
                 $employee = $this->employees()->create([
                     'id' => Str::ulid(),
-                    'unique_id' => Str::ulid()->toString(),
+                    'tip_code' => Str::ulid()->toString(),
                     'service_provider_id' => $this->id,
                 ]);
 

@@ -48,7 +48,7 @@ class EmployeeDataController extends Controller
                 'email',
                 'image_url',
             ]);
-            
+
             $employeeData->update($data);
             return response()->json($employeeData);
         } catch (\Exception $e) {
@@ -114,7 +114,7 @@ class EmployeeDataController extends Controller
                 'message' => 'Profile retrieved successfully',
                 'data' => [
                     'id' => $employee->id,
-                    'unique_id' => $employee->unique_id,
+                    'tip_code' => $employee->tip_code,
                     'is_active' => $employee->is_active,
                     'is_verified' => $employee->is_verified,
                     'first_name' => $profile->first_name,
@@ -209,10 +209,10 @@ class EmployeeDataController extends Controller
     {
         try {
             $employee = $request->user();
-            
+
             // Set employee as inactive instead of deleting
             $employee->update(['is_active' => false]);
-            
+
             // Revoke all tokens
             $employee->tokens()->delete();
 

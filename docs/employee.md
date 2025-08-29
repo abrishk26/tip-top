@@ -146,3 +146,201 @@ POST /employees/verify-email/?token=<token>
 | 400    | `{ "error": "token expired" }` |
 
 ---
+
+### 4. Get Employee Profile
+
+**Endpoint:**
+
+```
+GET /employees/profile
+```
+
+**Controller:** `EmployeeDataController@getProfile`
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer {token}    |
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Profile retrieved successfully",
+  "data": {
+    "id": "01HXYZ1234567890ABCDEF",
+    "unique_id": "EMP001",
+    "is_active": true,
+    "is_verified": true,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "image_url": "https://example.com/profile.jpg",
+    "created_at": "2025-01-15T10:30:00.000000Z",
+    "updated_at": "2025-01-15T10:30:00.000000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 401    | `{ "error": "Unauthenticated" }` |
+| 404    | `{ "error": "Profile not found" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+
+### 5. Update Employee Profile
+
+**Endpoint:**
+
+```
+PUT /employees/profile
+```
+
+**Controller:** `EmployeeDataController@updateProfile`
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Content-Type   | application/json   |
+| Accept         | application/json   |
+| Authorization  | Bearer {token}    |
+
+**Body Parameters:**
+
+| Field      | Type   | Required | Description                    |
+|------------|--------|----------|--------------------------------|
+| first_name | string | No       | Employee's first name          |
+| last_name  | string | No       | Employee's last name           |
+| image_url  | url    | No       | URL to employee's profile picture |
+
+**Example Request:**
+
+```json
+{
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "image_url": "https://example.com/new-profile.jpg"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Profile updated successfully",
+  "data": {
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "image_url": "https://example.com/new-profile.jpg",
+    "updated_at": "2025-01-15T11:00:00.000000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "No fields to update" }` |
+| 401    | `{ "error": "Unauthenticated" }` |
+| 422    | `{ "message": "Validation failed", "errors": { "image_url": ["The image url field must be a valid URL."] } }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+
+### 6. Change Employee Password
+
+**Endpoint:**
+
+```
+PUT /employees/change-password
+```
+
+**Controller:** `EmployeeDataController@changePassword`
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Content-Type   | application/json   |
+| Accept         | application/json   |
+| Authorization  | Bearer {token}    |
+
+**Body Parameters:**
+
+| Field            | Type   | Required | Description                    |
+|------------------|--------|----------|--------------------------------|
+| current_password | string | Yes      | Current password               |
+| new_password     | string | Yes      | New password (min 8 chars)    |
+| confirm_password | string | Yes      | Confirm new password           |
+
+**Example Request:**
+
+```json
+{
+  "current_password": "oldpassword123",
+  "new_password": "newpassword456",
+  "confirm_password": "newpassword456"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Password changed successfully"
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "message": "Validation failed", "errors": { "confirm_password": ["The confirm password and new password must match."] } }` |
+| 401    | `{ "error": "Current password is incorrect" }` |
+| 401    | `{ "error": "Unauthenticated" }` |
+| 404    | `{ "error": "Profile not found" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+
+### 7. Deactivate Employee Account
+
+**Endpoint:**
+
+```
+DELETE /employees/account
+```
+
+**Controller:** `EmployeeDataController@deactivateAccount`
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer {token}    |
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Account deactivated successfully"
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 401    | `{ "error": "Unauthenticated" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---

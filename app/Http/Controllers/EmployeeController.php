@@ -46,6 +46,7 @@ class EmployeeController extends Controller
         $validated['password_hash'] = Hash::make($validated['password']);
         unset($validated['password']);
 
+        unset($validated['employee_code']);
         $employee->create($validated);
 
 

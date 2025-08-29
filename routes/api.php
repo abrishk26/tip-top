@@ -25,7 +25,7 @@ Route::prefix('service-providers')->group(function () {
     Route::middleware(['auth:sanctum', EnsureTokenIsFor::class.':App\Models\ServiceProvider'])->group(function () {
         Route::get('profile', [ServiceProviderController::class, 'profile']);
         Route::post('logout', [ServiceProviderController::class, 'logout']);
-        Route::get('employees', [ServiceProviderController::class, 'getEmployees']);
+        Route::get('employees', [ServiceProviderController::class, 'getEmployeesData']);
         Route::post('employees/register', [ServiceProviderController::class, 'registerEmployees']);
         Route::patch('employees/activate/{id}', [ServiceProviderController::class, 'activateEmployee']);
         Route::patch('employees/deactivate/{id}', [ServiceProviderController::class, 'deactivateEmployee']);

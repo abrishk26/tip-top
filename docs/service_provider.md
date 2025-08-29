@@ -22,10 +22,12 @@ POST /service-providers/register
 
 | Key            | Value              |
 |----------------|--------------------|
-| Content-Type   | application/json   |
-| Accept         | application/json   |
+| Content-Type   | form-data          |
 
 **Body Parameters:**
+
+Fields:
+  #### 1. provider_data - text form of the below json data 
 
 | Field         | Type     | Required | Description                                                                                                   |
 |---------------|----------|----------|---------------------------------------------------------------------------------------------------------------|
@@ -39,18 +41,7 @@ POST /service-providers/register
 | address       | object   | Yes      | Must contains fields - street_address, city, region - which are all string, required and max 150 characters   |
 | image_url     | url      | No       | URL to service provider's logo                                                                                |
 
-**Example Request:**
-
-```json
-{
-  "name": "My Service",
-  "category_id": "<ulid>",
-  "email": "service@example.com",
-  "password": "securepassword",
-  "contact_phone": "+251912345678",
-  "image_url": "<logo_url>"
-}
-```
+  #### 2. license: license file
 
 **Success Response (201):**
 
@@ -66,6 +57,7 @@ POST /service-providers/register
 |--------|------------------|
 | 422    | `{ "message": "Validation failed", "errors": { "email": ["The email field must be a valid email address."] } }` |
 | 409    | `{ "error": "the email has already been taken" }` |
+| 400    | `{ "error": "license file missing" }` |
 
 ---
 
@@ -118,7 +110,38 @@ POST /service-providers/login
 
 ---
 
-### 3. Verify Service Provider Email
+### 2. Logout Service Provider
+
+**Endpoint:**
+
+```
+POST /service-providers/logout
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+**Success Response (200):**
+
+```json
+{
+  "message" => "Logged out successfully"
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 500    | `{ "error": "Failed to logout" }` |
+
+---
+
+### 4. Verify Service Provider Email
 
 **Endpoint:**
 
@@ -146,5 +169,222 @@ POST /service-providers/verify-email/?token=<token>
 |--------|------------------|
 | 400    | `{ "error": "invalid token" }` |
 | 400    | `{ "error": "token expired" }` |
+
+---
+
+---
+
+### 5. Get Service Provider Profile
+
+**Endpoint:**
+
+```
+GET /service-providers/profile
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+**Success Response (200):**
+
+```json
+{
+    'id' : <provider_id>,
+    'name' : <provider_name>,
+    'email' : <provider_email>,
+    'category' : <category_name>,
+    'description' : <description> optional,
+    'tax_id' : <provider_tax_id> optional,
+    'address' : <provider_address>: json with fields street, city, region,
+    'license' : <path_to_provider_license_file>,
+    'contact_phone' : <contact_phone>,
+    'image_url' : <image_url> optional,
+    'created_at' : <created_at>,
+    'updated_at' : <updated_at>
+
+}
+```
+
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "Unauthorized" }` |
+
+---
+
+### 6. Register Employees
+
+**Endpoint:**
+
+```
+POST /service-providers/employees/register
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+**Example Request:**
+
+```json
+{
+  "count": <number> min:1, max:100
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Employees registered",
+  "employees": [ {"employee_code": <code>}, ...]
+}
+```
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "Unauthorized" }` |
+| 400    | `{ "error": "Duplicate employee IDs detected" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+
+### 7. Get Employees Data
+
+**Endpoint:**
+
+```
+GET /service-providers/employees
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+
+**Success Response (200):**
+
+```json
+{
+  "employees": [ {"id": <employee_id>, "is_active": <boolean>, "first_name": <>, "last_name": <>, "email": <email>, "image_url": <>}, ...]
+}
+```
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "Unauthorized" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+
+### 8. Get Employees Summary
+
+**Endpoint:**
+
+```
+GET /service-providers/employees/summary
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+
+**Success Response (200):**
+
+```json
+{
+  "total": <total_employees_count>,
+  "active": <active_employees_count>,
+  "inactive": <inactive_employees_count>,
+}
+```
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "Unauthorized" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+
+### 9. Activate Employee
+
+**Endpoint:**
+
+```
+GET /service-providers/employees/activate/:employee_id
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Employee activated"
+}
+```
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "Unauthorized" }` |
+| 409    | `{ "error": "employee not found" }` |
+| 500    | `{ "error": "Internal server error" }` |
+
+---
+### 10. Deactivate Employee
+
+**Endpoint:**
+
+```
+GET /service-providers/employees/deactivate/:employee_id
+```
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer <token>     |
+
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Employee deactivated"
+}
+```
+**Error Responses:**
+
+| Status | Example Response |
+|--------|------------------|
+| 400    | `{ "error": "Unauthorized" }` |
+| 409    | `{ "error": "employee not found" }` |
+| 500    | `{ "error": "Internal server error" }` |
 
 ---

@@ -6,14 +6,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Exceptions\EmployeeNotFoundException;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Employee extends Model
+class Employee extends Authenticatable
 {
-    use HasUlids, HasApiTokens;
+    use HasUlids, HasApiTokens, HasFactory;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -35,7 +35,7 @@ class Employee extends Model
     // Relationship to SubAccount
     public function subAccount()
     {
-        return $this->hasOne(EmployeeData::class, 'employee_id', 'id');
+        return $this->hasOne(SubAccount::class, 'employee_id', 'id');
     }
 
     public function login(array $data)

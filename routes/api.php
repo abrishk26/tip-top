@@ -60,6 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::put('/profile', [EmployeeDataController::class, 'updateProfile']);
      Route::put('/password', [EmployeeDataController::class, 'updatePassword']);
      Route::delete('/account', [EmployeeDataController::class, 'deactivateAccount']);
+     
+     // Bank Account Management Endpoints
+     Route::get('/bank-account', [EmployeeDataController::class, 'getBankAccount']);
+     Route::put('/bank-account', [EmployeeDataController::class, 'updateBankAccount']);
 });
 
 // Test route for debugging

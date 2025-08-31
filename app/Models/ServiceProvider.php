@@ -17,9 +17,11 @@ use App\Exceptions\DuplicateEmailException;
 use App\Exceptions\DuplicateEmployeeException;
 use App\Exceptions\EmployeeNotFoundException;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class ServiceProvider extends Model
 {
-    use HasUlids, HasApiTokens;
+    use HasUlids, HasApiTokens, HasFactory;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -80,7 +82,11 @@ class ServiceProvider extends Model
         // send email for the provider in the background
         $verificationLink = config('app.frontend_url', 'http://localhost:8080') . '/api/service-provider/verify-token/?token=' . $token;
 
-        Mail::to($data['email'])->queue(new VerificationEmail($verificationLink));
+        // Temporarily comment out email sending to debug the issue
+        // Mail::to($data['email'])->queue(new VerificationEmail($verificationLink));
+        
+        // Log the verification link instead
+        \Log::info('Verification link generated for ' . $data['email'] . ': ' . $verificationLink);
 
         return $provider;
     }

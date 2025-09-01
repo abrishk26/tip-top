@@ -43,8 +43,8 @@ class ServiceProviderController extends Controller
 
         // check if there exist license file
         if ($request->hasFile('license')) {
-            $path = Storage::disk('public')->put('licenses', $request->file('license'), 'public');
-            $url = Storage::disk('public')->url($path);
+            $path = Storage::disk('cloudinary')->put('licenses', $request->file('license'), 'public');
+            $url = Storage::disk('cloudinary')->url($path);
 
             //store the provider in the database
             $validated['license'] = $url;

@@ -53,13 +53,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/employees-data/{id}', [EmployeeDataController::class, 'show']);
     Route::post('/employees-data', [EmployeeDataController::class, 'store']);
     Route::put('/employees-data/{id}', [EmployeeDataController::class, 'update']);
-    Route::put('/employees-data/{id}/password', [EmployeeDataController::class, 'updatePassword']);
     Route::delete('/employees-data/{id}', [EmployeeDataController::class, 'destroy']);
     Route::get('/employees-data/employee/{employeeId}', [EmployeeDataController::class, 'getByEmployeeId']);
      // Profile Management Endpoints
      Route::get('/profile', [EmployeeDataController::class, 'getProfile']);
      Route::put('/profile', [EmployeeDataController::class, 'updateProfile']);
-     Route::put('/change-password', [EmployeeDataController::class, 'changePassword']);
+     Route::put('/password', [EmployeeDataController::class, 'updatePassword']);
      Route::delete('/account', [EmployeeDataController::class, 'deactivateAccount']);
 });
 

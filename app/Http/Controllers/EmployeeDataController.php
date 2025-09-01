@@ -57,26 +57,35 @@ class EmployeeDataController extends Controller
     }
 
     // Update password
-    public function updatePassword(Request $request, $id)
+    public function updatePassword(Request $request)
     {
-        $request->validate([
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $employeeData = EmployeeData::find($id);
-
-        if (!$employeeData) {
-            return response()->json(['error' => 'Employee data not found'], 404);
-        }
-
         try {
-            $employeeData->update([
-                'password_hash' => Hash::make($request->password)
+            $validated = $request->validate([
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|min:8|max:200',
+                'confirm_password' => 'required|same:new_password',
+            ]);
+
+            $employee = $request->user();
+            $profile = $employee->data;
+
+            if (!$profile) {
+                return response()->json(['error' => 'Profile not found'], 404);
+            }
+
+            // Verify current password
+            if (!Hash::check($validated['current_password'], $profile->password_hash)) {
+                return response()->json(['error' => 'Current password is incorrect'], 401);
+            }
+
+            // Update password
+            $profile->update([
+                'password_hash' => Hash::make($validated['new_password'])
             ]);
 
             return response()->json(['message' => 'Password updated successfully']);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to update password: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Internal server error'], 500);
         }
     }
 
@@ -168,52 +177,18 @@ class EmployeeDataController extends Controller
     }
 
     /**
-     * Change authenticated employee password
-     */
-    public function changePassword(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'current_password' => 'required|string',
-                'new_password' => 'required|string|min:8|max:200',
-                'confirm_password' => 'required|same:new_password',
-            ]);
 
-            $employee = $request->user();
-            $profile = $employee->data;
-
-            if (!$profile) {
-                return response()->json(['error' => 'Profile not found'], 404);
-            }
-
-            // Verify current password
-            if (!Hash::check($validated['current_password'], $profile->password_hash)) {
-                return response()->json(['error' => 'Current password is incorrect'], 401);
-            }
-
-            // Update password
-            $profile->update([
-                'password_hash' => Hash::make($validated['new_password'])
-            ]);
-
-            return response()->json(['message' => 'Password changed successfully']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Internal server error'], 500);
-        }
-    }
-
-    /**
      * Deactivate authenticated employee account
      */
     public function deactivateAccount(Request $request)
     {
         try {
             $employee = $request->user();
-
+            
             // Set employee as inactive instead of deleting
             $employee->update(['is_active' => false]);
+            
 
-            // Revoke all tokens
             $employee->tokens()->delete();
 
             return response()->json(['message' => 'Account deactivated successfully']);
@@ -221,4 +196,3 @@ class EmployeeDataController extends Controller
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
-}

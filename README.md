@@ -32,9 +32,25 @@ composer install
     ```bash
     cp .env.example .env
     ```
-2. Open `.env` in your editor and set the database credentials:
+2. Open `.env` in your editor:
 
     ```env
+    // chapa configuration 
+    CHAPA_KEY="<your-chapa-api-key>"
+
+    // cloudinary configuration
+    CLOUDINARY_KEY="<api-key>"
+    CLOUDINARY_SECRET="<secret_key>"
+    CLOUDINARY_CLOUD_NAME="<cloud_name>"
+    CLOUDINARY_URL="<cloudinary_url>"
+
+    // email service configuration
+    RESEND_KEY="<your_email_service_api_key>" // note this example uses resend, you can change to other providers
+
+    // frontend url includeing port
+    FRONTEND_URL=<url:port>
+
+    // database configuration
     DB_CONNECTION=mysql
     DB_HOST=127.0.0.1
     DB_PORT=3306

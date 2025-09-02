@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminConfigController;
 
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
+Route::get('/tip/{id}', [TipController::class, 'processTip']);
 
 // Service provider routes
 Route::prefix('service-providers')->group(function () {
@@ -36,7 +37,6 @@ Route::prefix('service-providers')->group(function () {
 // Category routes
 Route::get('/categories', [CategoryController::class, 'index']);
 
-Route::get('/tip/{id}', [TipController::class, 'processTip']);
 Route::prefix('employees')->group(function () {
     Route::post('register', [EmployeeController::class, 'completeRegistration']);
     Route::post('login', [EmployeeController::class, 'login']);

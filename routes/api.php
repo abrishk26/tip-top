@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureTokenIsFor;
+use App\Http\Middleware\EnsureProviderIsVerified;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDataController;
@@ -23,7 +24,7 @@ Route::prefix('service-providers')->group(function () {
     Route::post('verify-email', [ServiceProviderController::class, 'verifyEmail']);
 
 
-    Route::middleware(['auth:sanctum', EnsureTokenIsFor::class.':App\Models\ServiceProvider'])->group(function () {
+    Route::middleware(['auth:sanctum', EnsureTokenIsFor::class.':App\Models\ServiceProvider', EnsureProviderIsVerified::class])->group(function () {
         Route::get('profile', [ServiceProviderController::class, 'profile']);
         Route::post('logout', [ServiceProviderController::class, 'logout']);
         Route::get('employees', [ServiceProviderController::class, 'getEmployeesData']);

@@ -12,6 +12,7 @@ use App\Exceptions\DuplicateEmailException;
 use App\Exceptions\DuplicateEmployeeException;
 use App\Exceptions\InvalidCredentialsException;
 use App\Exceptions\EmployeeNotFoundException;
+use App\Exceptions\UnverifiedUserException;
 
 use App\Models\ServiceProvider;
 use App\Models\VerificationToken;
@@ -74,6 +75,24 @@ class ServiceProviderController extends Controller
             return response()->json(['message' => 'login successful', 'token' => $result]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
+        } catch (UnverifiedUserException $e) {
+            if (!$e->is_verified) {
+                return response()->json([
+                    'status' => 'email_unverified',
+                    'message' => 'Please verify your email to continue.',
+                ], 403);
+            }
+
+            if ($e->registration_status != "accepted") {
+                return response()->json([
+                    'status' => 'license_'.$e->registration_status,
+                    'message' => match ($e->registration_status) {
+                       'pending' => 'Your license is under review.',
+                       'rejected' => 'Your license was rejected. Please resubmit.',
+                       default => 'License verification required.',
+                    }
+                ], 403);
+            }
         } catch (\Exception $e) {
             Log::error($e);
             return response()->json(['error' => 'Internal server error'], 500);

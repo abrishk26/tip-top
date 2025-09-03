@@ -54,6 +54,11 @@ class Employee extends Authenticatable
         }
         $employee = $employee_data->employee;
 
+        // block login if email is not verified
+        if (!$employee->is_verified) {
+            throw new \App\Exceptions\EmailNotVerifiedException();
+        }
+
         $token = $employee->createToken('api-token')->plainTextToken;
 
         return $token;

@@ -77,11 +77,29 @@ class EmployeeController extends Controller
             return response()->json(['message' => 'login successful', 'token' => $result]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
+        } catch (\App\Exceptions\EmailNotVerifiedException $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
         } catch (\Exception $e) {
             Log::error($e);
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
+
+    // list transactions for the authenticated employee
+    public function transactions(Request $request)
+    {
+        $employee = $request->user();
+        $list = \App\Models\Transaction::query()
+            ->join('tips', 'transactions.tip_id', '=', 'tips.id')
+            ->where('tips.employee_id', $employee->id)
+            ->orderByDesc('transactions.created_at')
+            ->select(['transactions.id', 'transactions.tx_ref', 'transactions.status', 'transactions.created_at'])
+            ->get();
+
+        return response()->json(['transactions' => $list]);
+    }
+
+    
 
     public function completeBankInfo(Request $request)
     {

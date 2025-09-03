@@ -44,6 +44,7 @@ Route::prefix('employees')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/set-bank-info', [EmployeeController::class, 'completeBankInfo']);
+        Route::get('/transactions', [EmployeeController::class, 'transactions']);
     });
 });
 

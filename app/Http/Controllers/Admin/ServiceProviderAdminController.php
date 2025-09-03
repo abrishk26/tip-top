@@ -51,7 +51,6 @@ class ServiceProviderAdminController extends Controller
     {
         $provider = ServiceProvider::findOrFail($id);
         $provider->registration_status = 'accepted';
-        $provider->is_verified = true;
         $provider->save();
 
         return response()->json([

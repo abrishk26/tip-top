@@ -30,8 +30,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Education',
         ]);
 
+        // Always seed an admin user (will prompt for credentials if env not set)
+        $this->call(AdminSeeder::class);
 
         $this->command->info('Sample data created successfully!');
         $this->command->info('Category ID: ' . $category->id);
     }
 }
+

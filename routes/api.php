@@ -44,23 +44,33 @@ Route::prefix('employees')->group(function () {
     Route::post('verify-email', [EmployeeController::class, 'verifyEmail']);
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [EmployeeController::class, 'logout']);
         Route::post('/set-bank-info', [EmployeeController::class, 'completeBankInfo']);
+        Route::get('/transactions', [EmployeeController::class, 'transactions']);
     });
 });
 
-// EmployeeData routes
-Route::middleware('auth:sanctum')->group(function () {
+// EmployeeData routes (admin only)
+Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::get('/employees-data', [EmployeeDataController::class, 'index']);
     Route::get('/employees-data/{id}', [EmployeeDataController::class, 'show']);
     Route::post('/employees-data', [EmployeeDataController::class, 'store']);
     Route::put('/employees-data/{id}', [EmployeeDataController::class, 'update']);
     Route::delete('/employees-data/{id}', [EmployeeDataController::class, 'destroy']);
     Route::get('/employees-data/employee/{employeeId}', [EmployeeDataController::class, 'getByEmployeeId']);
+});
+
+// Employee profile routes (current user only)
+Route::middleware('auth:sanctum')->group(function () {
      // Profile Management Endpoints
-     Route::get('/profile', [EmployeeDataController::class, 'getProfile']);
-     Route::put('/profile', [EmployeeDataController::class, 'updateProfile']);
-     Route::put('/password', [EmployeeDataController::class, 'updatePassword']);
-     Route::delete('/account', [EmployeeDataController::class, 'deactivateAccount']);
+     Route::get('/employee/profile', [EmployeeDataController::class, 'getProfile']);
+     Route::put('/employee/profile', [EmployeeDataController::class, 'updateProfile']);
+     Route::put('/employee/password', [EmployeeDataController::class, 'updatePassword']);
+     Route::delete('/employee/account', [EmployeeDataController::class, 'deactivateAccount']);
+     
+     // Bank Account Management Endpoints
+     Route::get('/employee/bank-account', [EmployeeDataController::class, 'getBankAccount']);
+     Route::put('/employee/bank-account', [EmployeeDataController::class, 'updateBankAccount']);
 });
 
 // Test route for debugging

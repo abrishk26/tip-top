@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->boolean('is_active')->default(false);
-            $table->ulid('unique_id');
+            $table->ulid('tip_code');
             $table->ulid('service_provider_id');
+            $table->boolean('is_verified')->default(false);
             $table->timestamps();
 
             $table->foreign('service_provider_id')->references('id')->on('service_providers');

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureTokenIsFor;
+use App\Http\Middleware\EnsureProviderIsVerified;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDataController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminConfigController;
 
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
+Route::get('/tip/{id}', [TipController::class, 'processTip']);
 
 // Service provider routes
 Route::prefix('service-providers')->group(function () {
@@ -22,7 +24,7 @@ Route::prefix('service-providers')->group(function () {
     Route::post('verify-email', [ServiceProviderController::class, 'verifyEmail']);
 
 
-    Route::middleware(['auth:sanctum', EnsureTokenIsFor::class.':App\Models\ServiceProvider'])->group(function () {
+    Route::middleware(['auth:sanctum', EnsureTokenIsFor::class.':App\Models\ServiceProvider', EnsureProviderIsVerified::class])->group(function () {
         Route::get('profile', [ServiceProviderController::class, 'profile']);
         Route::post('logout', [ServiceProviderController::class, 'logout']);
         Route::get('employees', [ServiceProviderController::class, 'getEmployeesData']);
@@ -36,7 +38,6 @@ Route::prefix('service-providers')->group(function () {
 // Category routes
 Route::get('/categories', [CategoryController::class, 'index']);
 
-Route::get('/tip/{id}', [TipController::class, 'processTip']);
 Route::prefix('employees')->group(function () {
     Route::post('register', [EmployeeController::class, 'completeRegistration']);
     Route::post('login', [EmployeeController::class, 'login']);

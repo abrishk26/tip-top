@@ -31,7 +31,7 @@ class AdminEmployeeController extends Controller
 
         if ($q = $request->query('q')) {
             $query->where(function ($qb) use ($q) {
-                $qb->where('unique_id', 'like', "%{$q}%")
+                $qb->where('tip_code', 'like', "%{$q}%")
                    ->orWhereHas('data', function ($dqb) use ($q) {
                        $dqb->where('first_name', 'like', "%{$q}%")
                            ->orWhere('last_name', 'like', "%{$q}%")

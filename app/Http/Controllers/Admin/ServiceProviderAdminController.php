@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ServiceProvider;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ProviderRegistrationStatusUpdated;
 
 class ServiceProviderAdminController extends Controller
 {
@@ -51,8 +53,10 @@ class ServiceProviderAdminController extends Controller
     {
         $provider = ServiceProvider::findOrFail($id);
         $provider->registration_status = 'accepted';
-        $provider->is_verified = true;
         $provider->save();
+
+        // notify provider via email
+        Mail::to($provider->email)->queue(new ProviderRegistrationStatusUpdated($provider->name, 'accepted'));
 
         return response()->json([
             'message' => 'Service provider accepted',
@@ -66,6 +70,9 @@ class ServiceProviderAdminController extends Controller
         $provider = ServiceProvider::findOrFail($id);
         $provider->registration_status = 'rejected';
         $provider->save();
+
+        // notify provider via email
+        Mail::to($provider->email)->queue(new ProviderRegistrationStatusUpdated($provider->name, 'rejected'));
 
         return response()->json([
             'message' => 'Service provider rejected',
@@ -119,7 +126,7 @@ class ServiceProviderAdminController extends Controller
             ->map(function ($employee) {
                 return [
                     'id' => $employee->id,
-                    'unique_id' => $employee->unique_id ?? $employee->uin ?? null,
+                    'tip_code' => $employee->tip_code,
                     'is_active' => (bool) $employee->is_active,
                     'first_name' => $employee->data->first_name ?? null,
                     'last_name' => $employee->data->last_name ?? null,

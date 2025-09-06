@@ -16,6 +16,7 @@ use App\Mail\VerificationEmail;
 use App\Exceptions\DuplicateEmailException;
 use App\Exceptions\DuplicateEmployeeException;
 use App\Exceptions\EmployeeNotFoundException;
+use App\Exceptions\UnverifiedUserException;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -102,6 +103,14 @@ class ServiceProvider extends Model
 
         if (!Hash::check($data['password'], $user->password_hash)) {
             throw new \App\Exceptions\InvalidCredentialsException("invalid credential");
+        }
+
+        if (!$user->is_verified) {
+            throw new UnverifiedUserException("Email not verified", false);
+        }
+
+        if ($user->registration_status != 'accepted') {
+            throw new UnverifiedUserException("license not verified", true, $user->registration_status);
         }
 
         $token = $user->createToken('api-token')->plainTextToken;

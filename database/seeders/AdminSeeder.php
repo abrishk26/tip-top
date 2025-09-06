@@ -14,9 +14,24 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        $name = $this->command->ask('Admin name');
-        $email = $this->command->ask('Admin email');
-        $password = $this->command->secret('Admin password');
+        // Support non-interactive seeding via environment variables
+        $name = env('ADMIN_NAME');
+        $email = env('ADMIN_EMAIL');
+        $password = env('ADMIN_PASSWORD');
+
+        // Fallback to interactive prompts if any value is missing
+        if (!$name || !$email || !$password) {
+            $this->command->info('Create an admin user manually: please provide Name, Email, and Password.');
+        }
+        if (!$name) {
+            $name = $this->command->ask('Admin name');
+        }
+        if (!$email) {
+            $email = $this->command->ask('Admin email');
+        }
+        if (!$password) {
+            $password = $this->command->secret('Admin password');
+        }
 
         // Delete existing admin by email if exists
         Admin::where('email', $email)->delete();

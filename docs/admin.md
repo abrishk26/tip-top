@@ -203,7 +203,7 @@ Body: none
 json
 {
   "message": "Service provider accepted",
-  "provider": { "id": "01K...", "registration_status": "accepted", "is_verified": true }
+  "provider": { "id": "01K...", "registration_status": "accepted" }
 }
 
 #### POST /admin/service-providers/{id}/reject
@@ -257,7 +257,7 @@ json
   "employees": [
     {
       "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF",
-      "unique_id": "01K...",
+      "tip_code": "01K...",
       "is_active": false,
       "first_name": null,
       "last_name": null,
@@ -278,10 +278,9 @@ Headers (protected routes):
 #### GET /admin/employees
 
 Query params (optional):
-- q: search by name/email/unique_id
+- q: search by name/email/tip_code
 - provider_id: ULID of service provider
 - is_active: true | false
-- is_verified: true | false
 - is_suspended: true | false
 - per_page: integer (default 15)
 
@@ -295,7 +294,7 @@ json
   "data": [
     {
       "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF",
-      "unique_id": "01K...",
+      "tip_code": "01K...",
       "service_provider_id": "01K3NRCEG37NXFY816Z858XF8W",
       "is_active": false,
       "is_verified": false,
@@ -315,7 +314,7 @@ GET /admin/employees/01K3NRG8P0SWEHW2MA2F3MG8ZF
 json
 {
   "id": "01K3NRG8P0SWEHW2MA2F3MG8ZF",
-  "unique_id": "01K...",
+  "tip_code": "01K...",
   "service_provider_id": "01K3NRCEG37NXFY816Z858XF8W",
   "is_active": false,
   "is_verified": false,

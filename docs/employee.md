@@ -203,7 +203,7 @@ GET /employee/profile
   "message": "Profile retrieved successfully",
   "data": {
     "id": "01HXYZ1234567890ABCDEF",
-    "unique_id": "EMP001",
+    "tip_code": "EMP001",
     "is_active": true,
     "is_verified": true,
     "first_name": "John",

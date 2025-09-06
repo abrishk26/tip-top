@@ -9,6 +9,42 @@ use Illuminate\Validation\Rule;
 
 class EmployeeDataController extends Controller
 {
+    // Get all employee data
+    public function index()
+    {
+        $employeeData = EmployeeData::with('employee')->get();
+        return response()->json(['data' => $employeeData]);
+    }
+
+    // Create new employee data
+    public function store(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|ulid|exists:employees,id',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees_data,email',
+            'image_url' => 'sometimes|url',
+        ]);
+
+        try {
+            $employeeData = EmployeeData::create($request->only([
+                'employee_id',
+                'first_name',
+                'last_name',
+                'email',
+                'image_url',
+            ]));
+
+            return response()->json([
+                'message' => 'Employee data created successfully',
+                'data' => $employeeData
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to create employee data'], 500);
+        }
+    }
+
     // Get specific employee data
     public function show($id)
     {
@@ -19,6 +55,18 @@ class EmployeeDataController extends Controller
         }
 
         return response()->json($employeeData);
+    }
+
+    // Get employee data by employee ID
+    public function getByEmployeeId($employeeId)
+    {
+        $employeeData = EmployeeData::where('employee_id', $employeeId)->with('employee')->first();
+
+        if (!$employeeData) {
+            return response()->json(['error' => 'Employee data not found'], 404);
+        }
+
+        return response()->json(['data' => $employeeData]);
     }
 
     // Update employee data

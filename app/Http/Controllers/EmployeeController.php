@@ -85,6 +85,19 @@ class EmployeeController extends Controller
         }
     }
 
+    public function logout(Request $request)
+    {
+        try {
+            $employee = $request->user();
+            $employee->tokens()->delete();
+            
+            return response()->json(['message' => 'logout successful']);
+        } catch (\Exception $e) {
+            Log::error($e);
+            return response()->json(['error' => 'Internal server error'], 500);
+        }
+    }
+
     // list transactions for the authenticated employee
     public function transactions(Request $request)
     {

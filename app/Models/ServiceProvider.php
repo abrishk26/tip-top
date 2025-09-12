@@ -83,9 +83,8 @@ class ServiceProvider extends Model
         // send email for the provider in the background
         $verificationLink = config('app.frontend_url', 'http://localhost:8080') . '/api/service-provider/verify-token/?token=' . $token;
 
-        // Temporarily comment out email sending to debug the issue
-        // Mail::to($data['email'])->queue(new VerificationEmail($verificationLink));
-        
+        Mail::to($data['email'])->queue(new VerificationEmail($verificationLink));
+
         // Log the verification link instead
         \Log::info('Verification link generated for ' . $data['email'] . ': ' . $verificationLink);
 

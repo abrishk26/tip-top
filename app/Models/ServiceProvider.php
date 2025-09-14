@@ -54,31 +54,31 @@ class ServiceProvider extends Model
             throw new DuplicateEmailException;
         }
 
-        // restructure the data for db insertion
-        $data['password_hash'] = bcrypt($data['password']);
-        unset($data['password']);
+        DB::transaction(function () use ($data, &$provider, &$token) {
+            // restructure the data for db insertion
+            $data['password_hash'] = bcrypt($data['password']);
+            unset($data['password']);
 
-        $street = $data['address']['street_address'];
-        $city = $data['address']['city'];
-        $region = $data['address']['region'];
+            $street = $data['address']['street_address'];
+            $city = $data['address']['city'];
+            $region = $data['address']['region'];
+            unset($data['address']);
 
-        unset($data['address']);
+            $provider = ServiceProvider::create($data);
+            $provider->address()->create([
+                'street_address' => $street,
+                'city' => $city,
+                'region' => $region,
+            ]);
 
-        $provider = ServiceProvider::create($data);
-        $provider->address()->create([
-            'street_address' => $street,
-            'city' => $city,
-            'region' => $region,
-        ]);
-
-        // generate verification token
-        $token = Str::random(64);
-        VerificationToken::create([
-            'token' => $token,
-            'tokenable_type' => 'provider',
-            'tokenable_id' => $provider->id,
-            'expires_at' => now()->addHours(24),
-        ]);
+            $token = Str::random(64);
+            VerificationToken::create([
+                'token' => $token,
+                'tokenable_type' => ServiceProvider::class,
+                'tokenable_id' => $provider->id,
+                'expires_at' => now()->addHours(24),
+            ]);
+        });
 
         // send email for the provider in the background
         $verificationLink = config('app.frontend_url', 'http://localhost:8080') . '/api/service-provider/verify-email/?token=' . $token;

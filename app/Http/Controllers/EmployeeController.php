@@ -74,7 +74,12 @@ class EmployeeController extends Controller
 
         try {
             $result = $employee->login($validated);
-            return response()->json(['message' => 'login successful', 'token' => $result]);
+            return response()->json(
+                [
+                    'message' => 'login successful',
+                    'token' => $result,
+                    'role' => 'employee'
+                ]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
         } catch (\App\Exceptions\EmailNotVerifiedException $e) {
@@ -90,7 +95,7 @@ class EmployeeController extends Controller
         try {
             $employee = $request->user();
             $employee->tokens()->delete();
-            
+
             return response()->json(['message' => 'logout successful']);
         } catch (\Exception $e) {
             Log::error($e);
@@ -112,7 +117,7 @@ class EmployeeController extends Controller
         return response()->json(['transactions' => $list]);
     }
 
-    
+
 
     public function completeBankInfo(Request $request)
     {

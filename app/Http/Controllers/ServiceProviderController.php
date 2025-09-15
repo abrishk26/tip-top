@@ -44,8 +44,23 @@ class ServiceProviderController extends Controller
 
         // check if there exist license file
         if ($request->hasFile('license')) {
-            $path = Storage::disk('cloudinary')->putFile('licenses', $request->file('license'), 'public');
-            $url = Storage::disk('cloudinary')->url($path);
+             $path = Storage::disk('cloudinary')->putFile('licenses', $request->file('license'), 'public');
+             $url = Storage::disk('cloudinary')->url($path);
+
+            // $file = $request->file('license');
+            // $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+            // $extension = $file->getClientOriginalExtension();
+            
+            // if (!in_array(strtolower($extension), $allowedTypes)) {
+            //     return response()->json(['error' => 'Invalid file type. Allowed types: ' . implode(', ', $allowedTypes)], 400);
+            // }
+            
+            // if ($file->getSize() > 10 * 1024 * 1024) { // 10MB limit
+            //     return response()->json(['error' => 'File size too large. Maximum size is 10MB'], 400);
+            // }
+
+            // $path = Storage::disk('public')->putFile('licenses', $file);
+            // $url = Storage::disk('public')->url($path);
 
             //store the provider in the database
             $validated['license'] = $url;

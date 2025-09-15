@@ -7,7 +7,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Illuminate\Support\Number;
 use App\Models\SubAccount;
 use App\Models\Transaction;
 use App\Models\Tip;
@@ -58,7 +57,10 @@ class TipController extends Controller
             ]);
 
             Log::info($response);
-            return response()->json(['link' => $response['data']['checkout_url']], 200);
+            return response()->json([
+                'link' => $response['data']['checkout_url'],
+                'tx_ref' => $tx_ref,
+            ], 200);
 
         } catch (ConnectionException $e) {
             return response()->json(['error' => 'internal server error'], 500);
@@ -69,23 +71,39 @@ class TipController extends Controller
     {
         Log::info('processing request from chapa');
 
-        $amount = Number::parseFloat($request->input('amount'));
-        $charge = Number::parseFloat($request->input('charge'));
+        $amount = (float) $request->input('amount');
+        $charge = (float) $request->input('charge');
+        if (!is_numeric($request->input('amount')) || !is_numeric($request->input('charge'))) {
+            return response()->json(['error' => 'invalid amount or charge'], 422);
+        }
         $tx_ref = $request->input('tx_ref');
 
+        if (!$tx_ref) {
+            return response()->json(['error' => 'tx_ref is required'], 422);
+        }
+
         $transaction = Transaction::where('tx_ref', $tx_ref)->first();
+        if (!$transaction) {
+            return response()->json(['error' => 'transaction not found'], 404);
+        }
         if ($transaction->status === 'completed') {
             return response('Already processed', 200);
         }
         $transaction->update(['status' => 'completed']);
 
         $tip = Tip::where('id', $transaction->tip_id)->first();
+        if (!$tip) {
+            return response()->json(['error' => 'tip not found'], 404);
+        }
         $tip->status = 'completed';
         $tip->save();
 
         $chapaConfig = config('services.chapa');
 
         $employee = Employee::where('id', $tip->employee_id)->first();
+        if (!$employee) {
+            return response()->json(['error' => 'employee not found'], 404);
+        }
         Payment::create([
             'tip_id' => $tip->id,
             'employee_id' => $employee->id,

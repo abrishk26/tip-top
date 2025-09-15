@@ -13,4 +13,8 @@ class VerificationToken extends Model
     protected $keyType = 'string';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
 }

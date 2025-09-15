@@ -44,23 +44,8 @@ class ServiceProviderController extends Controller
 
         // check if there exist license file
         if ($request->hasFile('license')) {
-             $path = Storage::disk('cloudinary')->putFile('licenses', $request->file('license'), 'public');
-             $url = Storage::disk('cloudinary')->url($path);
-
-            // $file = $request->file('license');
-            // $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
-            // $extension = $file->getClientOriginalExtension();
-            
-            // if (!in_array(strtolower($extension), $allowedTypes)) {
-            //     return response()->json(['error' => 'Invalid file type. Allowed types: ' . implode(', ', $allowedTypes)], 400);
-            // }
-            
-            // if ($file->getSize() > 10 * 1024 * 1024) { // 10MB limit
-            //     return response()->json(['error' => 'File size too large. Maximum size is 10MB'], 400);
-            // }
-
-            // $path = Storage::disk('public')->putFile('licenses', $file);
-            // $url = Storage::disk('public')->url($path);
+            $path = Storage::disk('cloudinary')->putFile('licenses', $request->file('license'), 'public');
+            $url = Storage::disk('cloudinary')->url($path);
 
             //store the provider in the database
             $validated['license'] = $url;
@@ -87,7 +72,12 @@ class ServiceProviderController extends Controller
 
         try {
             $result = ServiceProvider::login($validated);
-            return response()->json(['message' => 'login successful', 'token' => $result]);
+            return response()->json(
+                [
+                    'message' => 'login successful',
+                    'token' => $result,
+                    'role' => 'service-providers'
+                ]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
         } catch (UnverifiedUserException $e) {
@@ -130,7 +120,7 @@ class ServiceProviderController extends Controller
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');
-
+        Log::info($token);
         $record = VerificationToken::where('token', $token)->first();
 
         if (!$record) {

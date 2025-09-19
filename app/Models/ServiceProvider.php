@@ -80,13 +80,11 @@ class ServiceProvider extends Model
             ]);
         });
 
-        // send email for the provider in the background
-        $verificationLink = config('app.frontend_url', 'http://localhost:8080') . '/api/service-provider/verify-email/?token=' . $token;
-
-        Mail::to($data['email'])->queue(new VerificationEmail($verificationLink));
-
-        // Log the verification link instead
-        \Log::info('Verification link generated for ' . $data['email'] . ': ' . $verificationLink);
+        DB::afterCommit( function () use ($data, $token) {
+            $verificationLink = config('app.frontend_url', 'http://localhost:8080') . '/api/service-provider/verify-email/?token=' . $token;
+            Mail::to($data['email'])->queue(new VerificationEmail($verificationLink));
+            \Log::info('Verification link generated for ' . $data['email'] . ': ' . $verificationLink);
+        });
 
         return $provider;
     }

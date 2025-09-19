@@ -26,7 +26,7 @@ class EmployeeController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees_data,email',
             'password' => 'required|string|min:8|max:200',
-            'image_url' => 'sometimes|url',
+            'image_url' => 'nullable|url',
         ]);
 
         // check if the given email already exists

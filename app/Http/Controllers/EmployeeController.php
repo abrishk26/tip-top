@@ -26,7 +26,7 @@ class EmployeeController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees_data,email',
             'password' => 'required|string|min:8|max:200',
-            'image_url' => 'sometimes|url',
+            'image_url' => 'nullable|url',
         ]);
 
         // check if the given email already exists
@@ -74,7 +74,12 @@ class EmployeeController extends Controller
 
         try {
             $result = $employee->login($validated);
-            return response()->json(['message' => 'login successful', 'token' => $result]);
+            return response()->json(
+                [
+                    'message' => 'login successful',
+                    'token' => $result,
+                    'role' => 'employee'
+                ]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
         } catch (\App\Exceptions\EmailNotVerifiedException $e) {
@@ -90,7 +95,7 @@ class EmployeeController extends Controller
         try {
             $employee = $request->user();
             $employee->tokens()->delete();
-            
+
             return response()->json(['message' => 'logout successful']);
         } catch (\Exception $e) {
             Log::error($e);
@@ -113,8 +118,13 @@ class EmployeeController extends Controller
         return response()->json(['transactions' => $list]);
     }
 
+<<<<<<< HEAD
     
     
+=======
+
+
+>>>>>>> f5fe80b8a8c5c81fe0b035466ca8c70f397f9a6f
     public function completeBankInfo(Request $request)
     {
         $validated = $request->validate([

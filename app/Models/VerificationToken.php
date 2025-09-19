@@ -14,6 +14,7 @@ class VerificationToken extends Model
 
     protected $guarded = [];
 
+
     protected function casts() {
         return [
             "expires_at" => "datetime"

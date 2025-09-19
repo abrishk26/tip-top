@@ -837,3 +837,38 @@ GET /employees-data/employee/{employeeId}
 
 ---
 
+### 18. Get Employee transactions
+
+**Endpoint:**
+
+```
+GET  /employees/transactions
+```
+
+**Controller:** `EmployeeController@transactions`
+
+**Headers:**
+
+| Key            | Value              |
+|----------------|--------------------|
+| Accept         | application/json   |
+| Authorization  | Bearer {token} |
+
+**Success Response (200):**
+
+```json
+{
+  "transactions": [
+    {
+      "id": "01k56ymcgm3p95mcgr0x2ke1r0",
+      "tx_ref": "EdayefSSKw",
+      "status": "completed",
+      "created_at": "2025-09-15T15:06:57.000000Z",
+      "amount": 150.0
+    }
+  ]
+}
+```
+
+Notes:
+- `amount` is the net amount received by the employee for that transaction (after fees).

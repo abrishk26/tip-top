@@ -72,7 +72,12 @@ class ServiceProviderController extends Controller
 
         try {
             $result = ServiceProvider::login($validated);
-            return response()->json(['message' => 'login successful', 'token' => $result]);
+            return response()->json(
+                [
+                    'message' => 'login successful',
+                    'token' => $result,
+                    'role' => 'service-providers'
+                ]);
         } catch (InvalidCredentialsException $e) {
             return response()->json(['error' => $e->getMessage()], 401);
         } catch (UnverifiedUserException $e) {
@@ -115,7 +120,7 @@ class ServiceProviderController extends Controller
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');
-
+        Log::info($token);
         $record = VerificationToken::where('token', $token)->first();
 
         if (!$record) {

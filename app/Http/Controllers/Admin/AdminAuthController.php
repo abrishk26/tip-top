@@ -36,6 +36,7 @@ class AdminAuthController extends Controller
             'message' => 'Login successful',
             'admin' => $admin->only(['id', 'name', 'email']),
             'token' => $token,
+            'role' => 'admin'
         ]);
     }
 

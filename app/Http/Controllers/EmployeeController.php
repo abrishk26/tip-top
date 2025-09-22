@@ -109,16 +109,15 @@ class EmployeeController extends Controller
         $employee = $request->user();
         $list = \App\Models\Transaction::query()
             ->join('tips', 'transactions.tip_id', '=', 'tips.id')
+            ->join('payments', 'payments.tip_id', '=', 'tips.id')
             ->where('tips.employee_id', $employee->id)
             ->orderByDesc('transactions.created_at')
-            ->select(['transactions.id', 'transactions.tx_ref', 'transactions.status', 'transactions.created_at'])
+            ->select(['transactions.id', 'transactions.tx_ref', 'transactions.status', 'transactions.created_at', 'payments.amount'])
             ->get();
 
         return response()->json(['transactions' => $list]);
     }
-
-
-
+  
     public function completeBankInfo(Request $request)
     {
         $validated = $request->validate([

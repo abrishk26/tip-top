@@ -858,7 +858,7 @@ GET  /employees/transactions
 
 ```json
 {
-  "transactions": [
+  "payments": [
     {
       "id": "01k56ymcgm3p95mcgr0x2ke1r0",
       "tip_id": "EdayefSSKw",

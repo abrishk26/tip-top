@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\AdminConfigController;
 Route::post('verify-payment', [TipController::class, 'verifyTipPayment']);
 Route::get('/tip/{id}', [TipController::class, 'processTip']);
 
+Route::get('public/employee/data/{tip_code}', [EmployeeController::class, 'getProfile']);
+
 // Service provider routes
 Route::prefix('service-providers')->group(function () {
     Route::post('register', [ServiceProviderController::class, 'register']);
@@ -67,7 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::put('/employee/profile', [EmployeeDataController::class, 'updateProfile']);
      Route::put('/employee/password', [EmployeeDataController::class, 'updatePassword']);
      Route::delete('/employee/account', [EmployeeDataController::class, 'deactivateAccount']);
-     
+
      // Bank Account Management Endpoints
      Route::get('/employee/bank-account', [EmployeeDataController::class, 'getBankAccount']);
      Route::put('/employee/bank-account', [EmployeeDataController::class, 'updateBankAccount']);

@@ -249,4 +249,18 @@ class EmployeeController extends Controller
 
         return response()->json(['message' => 'email verified successfully']);
     }
+
+    public function getProfile(string $tipCode) {
+        $employee = Employee::where('tip_code', $tipCode)->first();
+        if (!$employee) {
+            return response()->json(['error' => 'employee not found'], 400);
+        }
+
+        $data = $employee->data;
+        if (!$data) {
+            return response()->json(['error' => 'employee not found'], 400);
+        }
+
+        return response()->json(['first_name' => $data->first_name, 'last_name' => $data->last_name, 'profile' => $data->image_url], 200);
+    }
 }

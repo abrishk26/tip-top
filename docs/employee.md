@@ -861,8 +861,8 @@ GET  /employees/transactions
   "transactions": [
     {
       "id": "01k56ymcgm3p95mcgr0x2ke1r0",
-      "tx_ref": "EdayefSSKw",
-      "status": "completed",
+      "tip_id": "EdayefSSKw",
+      "fee": 20,
       "created_at": "2025-09-15T15:06:57.000000Z",
       "amount": 150.0
     }

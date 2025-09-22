@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Mail\VerificationEmail;
 use App\Models\Employee;
 use App\Models\SubAccount;
+    use App\Models\Payment;
+
 use App\Models\EmployeeData;
 use App\Models\VerificationToken;
 use App\Exceptions\InvalidCredentialsException;
@@ -104,20 +106,29 @@ class EmployeeController extends Controller
     }
 
     // list transactions for the authenticated employee
-    public function transactions(Request $request)
-    {
-        $employee = $request->user();
-        $list = \App\Models\Transaction::query()
-            ->join('tips', 'transactions.tip_id', '=', 'tips.id')
-            ->join('payments', 'payments.tip_id', '=', 'tips.id')
-            ->where('tips.employee_id', $employee->id)
-            ->orderByDesc('transactions.created_at')
-            ->select(['transactions.id', 'transactions.tx_ref', 'transactions.status', 'transactions.created_at', 'payments.amount'])
-            ->get();
 
-        return response()->json(['transactions' => $list]);
-    }
-  
+
+public function transactions(Request $request)
+{
+    $employee = $request->user();
+
+    $list = Payment::query()
+        ->where('employee_id', $employee->id)
+        ->orderByDesc('created_at')
+        ->get(['id', 'tip_id', 'amount', 'chapa_fee', 'service_fee', 'created_at'])
+        ->map(function ($payment) {
+            return [
+                'id'         => $payment->id,
+                'tip_id'     => $payment->tip_id,
+                'amount'     => $payment->amount,
+                'fee'        => $payment->chapa_fee + $payment->service_fee, // merged
+                'created_at' => $payment->created_at,
+            ];
+        });
+
+    return response()->json(['payments' => $list]);
+}
+
     public function completeBankInfo(Request $request)
     {
         $validated = $request->validate([
